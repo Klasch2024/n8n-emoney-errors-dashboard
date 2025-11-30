@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Foundation Colors */
+  --bg-primary: #212121;
+  --bg-secondary: #2A2A2A;
+  --bg-tertiary: #333333;
+  
+  /* Accent Colors */
+  --accent-neon: #E67514;
+  --accent-neon-hover: #FF8C2E;
+  --accent-neon-muted: #D66510;
+  
+  /* Text Colors */
+  --text-primary: #F5F5F5;
+  --text-secondary: #BEBEBE;
+  --text-tertiary: #8A8A8A;
+  
+  /* Semantic Colors */
+  --error-primary: #EF4444;
+  --error-bg: rgba(239, 68, 68, 0.1);
+  --error-border: rgba(239, 68, 68, 0.3);
+  
+  --warning-primary: #F59E0B;
+  --warning-bg: rgba(245, 158, 11, 0.1);
+  --warning-border: rgba(245, 158, 11, 0.3);
+  
+  --success-primary: #10B981;
+  --success-bg: rgba(16, 185, 129, 0.1);
+  --success-border: rgba(16, 185, 129, 0.3);
+  
+  --info-primary: #3B82F6;
+  --info-bg: rgba(59, 130, 246, 0.1);
+  --info-border: rgba(59, 130, 246, 0.3);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 4px 16px rgba(230, 117, 20, 0.15);
+  --shadow-accent-strong: 0 8px 24px rgba(230, 117, 20, 0.25);
+  
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  min-height: 100vh;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4A4A4A;
+  border-radius: 0.25rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #5A5A5A;
+}
+
+/* Code Block Scrollbar */
+.code-block::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+

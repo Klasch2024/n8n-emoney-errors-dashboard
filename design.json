@@ -1,0 +1,759 @@
+{
+    "designSystem": {
+      "metadata": {
+        "name": "N8N Debug Dashboard",
+        "framework": "Next.js + Tailwind CSS",
+        "colorScheme": "dark",
+        "purpose": "Professional debugging dashboard for n8n workflows"
+      },
+      
+      "colorPalette": {
+        "foundation": {
+          "background": {
+            "primary": "#212121",
+            "secondary": "#2A2A2A",
+            "tertiary": "#333333",
+            "usage": "primary for page background, secondary for card backgrounds, tertiary for hover states"
+          },
+          "accent": {
+            "neon": "#E67514",
+            "neonHover": "#FF8C2E",
+            "neonMuted": "#D66510",
+            "usage": "Primary interactive elements, highlights, status indicators"
+          },
+          "text": {
+            "primary": "#F5F5F5",
+            "secondary": "#BEBEBE",
+            "tertiary": "#8A8A8A",
+            "usage": "primary for headings, secondary for body text, tertiary for labels"
+          }
+        },
+        
+        "semantic": {
+          "error": {
+            "primary": "#EF4444",
+            "background": "rgba(239, 68, 68, 0.1)",
+            "border": "rgba(239, 68, 68, 0.3)"
+          },
+          "warning": {
+            "primary": "#F59E0B",
+            "background": "rgba(245, 158, 11, 0.1)",
+            "border": "rgba(245, 158, 11, 0.3)"
+          },
+          "success": {
+            "primary": "#10B981",
+            "background": "rgba(16, 185, 129, 0.1)",
+            "border": "rgba(16, 185, 129, 0.3)"
+          },
+          "info": {
+            "primary": "#3B82F6",
+            "background": "rgba(59, 130, 246, 0.1)",
+            "border": "rgba(59, 130, 246, 0.3)"
+          }
+        }
+      },
+  
+      "typography": {
+        "fontFamily": {
+          "primary": "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+          "monospace": "'JetBrains Mono', 'Fira Code', monospace"
+        },
+        
+        "scale": {
+          "h1": {
+            "size": "2rem",
+            "weight": "700",
+            "lineHeight": "1.2",
+            "color": "#F5F5F5",
+            "usage": "Page titles"
+          },
+          "h2": {
+            "size": "1.5rem",
+            "weight": "600",
+            "lineHeight": "1.3",
+            "color": "#F5F5F5",
+            "usage": "Section headers"
+          },
+          "h3": {
+            "size": "1.25rem",
+            "weight": "600",
+            "lineHeight": "1.4",
+            "color": "#F5F5F5",
+            "usage": "Card titles"
+          },
+          "body": {
+            "size": "0.875rem",
+            "weight": "400",
+            "lineHeight": "1.6",
+            "color": "#BEBEBE",
+            "usage": "Primary content"
+          },
+          "caption": {
+            "size": "0.75rem",
+            "weight": "400",
+            "lineHeight": "1.5",
+            "color": "#8A8A8A",
+            "usage": "Labels, timestamps, metadata"
+          },
+          "code": {
+            "size": "0.813rem",
+            "weight": "400",
+            "lineHeight": "1.5",
+            "color": "#F5F5F5",
+            "fontFamily": "monospace",
+            "usage": "Error messages, stack traces"
+          }
+        }
+      },
+  
+      "spacing": {
+        "scale": {
+          "xs": "0.25rem",
+          "sm": "0.5rem",
+          "md": "1rem",
+          "lg": "1.5rem",
+          "xl": "2rem",
+          "2xl": "3rem"
+        },
+        
+        "layout": {
+          "pageMargin": "2rem",
+          "sectionGap": "2rem",
+          "cardGap": "1.5rem",
+          "contentPadding": "1.5rem"
+        }
+      },
+  
+      "elementStyling": {
+        "layout": {
+          "page": {
+            "background": "#212121",
+            "minHeight": "100vh",
+            "padding": "2rem",
+            "DO_NOT": "Apply gradients or patterns to page background"
+          },
+          
+          "container": {
+            "maxWidth": "1400px",
+            "margin": "0 auto",
+            "width": "100%"
+          }
+        },
+  
+        "navigation": {
+          "tabBar": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.75rem",
+            "padding": "0.5rem",
+            "display": "flex",
+            "gap": "0.5rem",
+            "marginBottom": "2rem"
+          },
+          
+          "tab": {
+            "default": {
+              "background": "transparent",
+              "color": "#BEBEBE",
+              "padding": "0.75rem 1.5rem",
+              "borderRadius": "0.5rem",
+              "fontSize": "0.875rem",
+              "fontWeight": "500",
+              "transition": "all 0.2s ease",
+              "border": "none"
+            },
+            "hover": {
+              "background": "#333333",
+              "color": "#F5F5F5"
+            },
+            "active": {
+              "background": "#E67514",
+              "color": "#FFFFFF",
+              "fontWeight": "600"
+            },
+            "DO_NOT": "Use gradients on tabs, keep solid colors only"
+          }
+        },
+  
+        "cards": {
+          "errorCard": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.75rem",
+            "padding": "1.5rem",
+            "shadow": "0 2px 8px rgba(0, 0, 0, 0.3)",
+            "transition": "all 0.2s ease",
+            
+            "hover": {
+              "border": "1px solid #E67514",
+              "shadow": "0 4px 16px rgba(230, 117, 20, 0.15)",
+              "transform": "translateY(-2px)"
+            },
+            
+            "header": {
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "space-between",
+              "marginBottom": "1rem",
+              
+              "title": {
+                "color": "#F5F5F5",
+                "fontSize": "1rem",
+                "fontWeight": "600"
+              },
+              
+              "badge": {
+                "background": "rgba(239, 68, 68, 0.1)",
+                "color": "#EF4444",
+                "border": "1px solid rgba(239, 68, 68, 0.3)",
+                "padding": "0.25rem 0.75rem",
+                "borderRadius": "0.375rem",
+                "fontSize": "0.75rem",
+                "fontWeight": "500"
+              }
+            },
+            
+            "content": {
+              "color": "#BEBEBE",
+              "fontSize": "0.875rem",
+              "lineHeight": "1.6",
+              "marginBottom": "1rem"
+            },
+            
+            "metadata": {
+              "display": "flex",
+              "gap": "1.5rem",
+              "marginTop": "1rem",
+              "paddingTop": "1rem",
+              "borderTop": "1px solid #333333",
+              
+              "item": {
+                "display": "flex",
+                "alignItems": "center",
+                "gap": "0.5rem",
+                
+                "icon": {
+                  "color": "#8A8A8A",
+                  "size": "1rem"
+                },
+                
+                "text": {
+                  "color": "#8A8A8A",
+                  "fontSize": "0.75rem"
+                }
+              }
+            },
+            
+            "DO_NOT": "Apply accent colors to card backgrounds, keep backgrounds dark and neutral"
+          },
+  
+          "statCard": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.75rem",
+            "padding": "1.5rem",
+            "shadow": "0 2px 8px rgba(0, 0, 0, 0.3)",
+            
+            "icon": {
+              "background": "rgba(230, 117, 20, 0.1)",
+              "color": "#E67514",
+              "size": "2.5rem",
+              "padding": "0.75rem",
+              "borderRadius": "0.5rem",
+              "marginBottom": "1rem"
+            },
+            
+            "value": {
+              "color": "#F5F5F5",
+              "fontSize": "2rem",
+              "fontWeight": "700",
+              "lineHeight": "1.2",
+              "marginBottom": "0.5rem"
+            },
+            
+            "label": {
+              "color": "#BEBEBE",
+              "fontSize": "0.875rem",
+              "fontWeight": "400"
+            },
+            
+            "trend": {
+              "positive": {
+                "color": "#10B981",
+                "background": "rgba(16, 185, 129, 0.1)",
+                "padding": "0.25rem 0.5rem",
+                "borderRadius": "0.25rem",
+                "fontSize": "0.75rem",
+                "fontWeight": "500"
+              },
+              "negative": {
+                "color": "#EF4444",
+                "background": "rgba(239, 68, 68, 0.1)",
+                "padding": "0.25rem 0.5rem",
+                "borderRadius": "0.25rem",
+                "fontSize": "0.75rem",
+                "fontWeight": "500"
+              }
+            },
+            
+            "DO_NOT": "Use full accent color as icon background, only use transparent accent backgrounds"
+          }
+        },
+  
+        "buttons": {
+          "primary": {
+            "background": "#E67514",
+            "color": "#FFFFFF",
+            "border": "none",
+            "borderRadius": "0.5rem",
+            "padding": "0.75rem 1.5rem",
+            "fontSize": "0.875rem",
+            "fontWeight": "500",
+            "transition": "all 0.2s ease",
+            "shadow": "0 2px 4px rgba(230, 117, 20, 0.2)",
+            
+            "hover": {
+              "background": "#FF8C2E",
+              "shadow": "0 4px 8px rgba(230, 117, 20, 0.3)",
+              "transform": "translateY(-1px)"
+            },
+            
+            "active": {
+              "background": "#D66510",
+              "transform": "translateY(0)"
+            },
+            
+            "disabled": {
+              "background": "#4A4A4A",
+              "color": "#8A8A8A",
+              "cursor": "not-allowed",
+              "shadow": "none"
+            }
+          },
+          
+          "secondary": {
+            "background": "transparent",
+            "color": "#E67514",
+            "border": "1px solid #E67514",
+            "borderRadius": "0.5rem",
+            "padding": "0.75rem 1.5rem",
+            "fontSize": "0.875rem",
+            "fontWeight": "500",
+            "transition": "all 0.2s ease",
+            
+            "hover": {
+              "background": "rgba(230, 117, 20, 0.1)",
+              "borderColor": "#FF8C2E"
+            },
+            
+            "active": {
+              "background": "rgba(230, 117, 20, 0.2)"
+            }
+          },
+          
+          "ghost": {
+            "background": "transparent",
+            "color": "#BEBEBE",
+            "border": "none",
+            "borderRadius": "0.5rem",
+            "padding": "0.75rem 1.5rem",
+            "fontSize": "0.875rem",
+            "fontWeight": "500",
+            "transition": "all 0.2s ease",
+            
+            "hover": {
+              "background": "#333333",
+              "color": "#F5F5F5"
+            }
+          },
+          
+          "icon": {
+            "background": "transparent",
+            "color": "#BEBEBE",
+            "border": "none",
+            "borderRadius": "0.375rem",
+            "padding": "0.5rem",
+            "transition": "all 0.2s ease",
+            
+            "hover": {
+              "background": "#333333",
+              "color": "#E67514"
+            }
+          },
+          
+          "DO_NOT": "Apply gradients to buttons, use solid colors only"
+        },
+  
+        "inputs": {
+          "searchBar": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.5rem",
+            "padding": "0.75rem 1rem 0.75rem 2.5rem",
+            "color": "#F5F5F5",
+            "fontSize": "0.875rem",
+            "transition": "all 0.2s ease",
+            
+            "placeholder": {
+              "color": "#8A8A8A"
+            },
+            
+            "focus": {
+              "border": "1px solid #E67514",
+              "outline": "none",
+              "shadow": "0 0 0 3px rgba(230, 117, 20, 0.1)"
+            },
+            
+            "icon": {
+              "position": "absolute",
+              "left": "0.75rem",
+              "color": "#8A8A8A",
+              "size": "1rem"
+            }
+          },
+          
+          "select": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.5rem",
+            "padding": "0.75rem 1rem",
+            "color": "#F5F5F5",
+            "fontSize": "0.875rem",
+            "transition": "all 0.2s ease",
+            
+            "focus": {
+              "border": "1px solid #E67514",
+              "outline": "none"
+            },
+            
+            "option": {
+              "background": "#2A2A2A",
+              "color": "#F5F5F5",
+              "padding": "0.5rem 1rem",
+              
+              "hover": {
+                "background": "#333333"
+              },
+              
+              "selected": {
+                "background": "rgba(230, 117, 20, 0.1)",
+                "color": "#E67514"
+              }
+            }
+          }
+        },
+  
+        "badges": {
+          "error": {
+            "background": "rgba(239, 68, 68, 0.1)",
+            "color": "#EF4444",
+            "border": "1px solid rgba(239, 68, 68, 0.3)",
+            "borderRadius": "0.375rem",
+            "padding": "0.25rem 0.75rem",
+            "fontSize": "0.75rem",
+            "fontWeight": "500"
+          },
+          
+          "warning": {
+            "background": "rgba(245, 158, 11, 0.1)",
+            "color": "#F59E0B",
+            "border": "1px solid rgba(245, 158, 11, 0.3)",
+            "borderRadius": "0.375rem",
+            "padding": "0.25rem 0.75rem",
+            "fontSize": "0.75rem",
+            "fontWeight": "500"
+          },
+          
+          "success": {
+            "background": "rgba(16, 185, 129, 0.1)",
+            "color": "#10B981",
+            "border": "1px solid rgba(16, 185, 129, 0.3)",
+            "borderRadius": "0.375rem",
+            "padding": "0.25rem 0.75rem",
+            "fontSize": "0.75rem",
+            "fontWeight": "500"
+          },
+          
+          "info": {
+            "background": "rgba(59, 130, 246, 0.1)",
+            "color": "#3B82F6",
+            "border": "1px solid rgba(59, 130, 246, 0.3)",
+            "borderRadius": "0.375rem",
+            "padding": "0.25rem 0.75rem",
+            "fontSize": "0.75rem",
+            "fontWeight": "500"
+          },
+          
+          "neutral": {
+            "background": "rgba(190, 190, 190, 0.1)",
+            "color": "#BEBEBE",
+            "border": "1px solid rgba(190, 190, 190, 0.2)",
+            "borderRadius": "0.375rem",
+            "padding": "0.25rem 0.75rem",
+            "fontSize": "0.75rem",
+            "fontWeight": "500"
+          },
+          
+          "DO_NOT": "Use solid backgrounds on badges, always use transparent backgrounds with borders"
+        },
+  
+        "icons": {
+          "default": {
+            "color": "#BEBEBE",
+            "size": "1.25rem",
+            "strokeWidth": "2px"
+          },
+          
+          "accent": {
+            "color": "#E67514",
+            "size": "1.25rem",
+            "strokeWidth": "2px"
+          },
+          
+          "muted": {
+            "color": "#8A8A8A",
+            "size": "1rem",
+            "strokeWidth": "2px"
+          },
+          
+          "containerized": {
+            "icon": {
+              "color": "#E67514",
+              "size": "1.5rem"
+            },
+            "container": {
+              "background": "rgba(230, 117, 20, 0.1)",
+              "borderRadius": "0.5rem",
+              "padding": "0.75rem",
+              "width": "3rem",
+              "height": "3rem",
+              "display": "flex",
+              "alignItems": "center",
+              "justifyContent": "center"
+            }
+          },
+          
+          "DO_NOT": "Apply gradients to icons, use solid colors only. Do not apply accent colors to icon backgrounds unless using transparent accent"
+        },
+  
+        "tables": {
+          "container": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.75rem",
+            "overflow": "hidden"
+          },
+          
+          "header": {
+            "background": "#252525",
+            "borderBottom": "1px solid #333333",
+            
+            "cell": {
+              "color": "#BEBEBE",
+              "fontSize": "0.75rem",
+              "fontWeight": "600",
+              "textTransform": "uppercase",
+              "letterSpacing": "0.05em",
+              "padding": "1rem 1.5rem"
+            }
+          },
+          
+          "body": {
+            "row": {
+              "background": "#2A2A2A",
+              "borderBottom": "1px solid #333333",
+              "transition": "all 0.2s ease",
+              
+              "hover": {
+                "background": "#2F2F2F"
+              },
+              
+              "cell": {
+                "color": "#F5F5F5",
+                "fontSize": "0.875rem",
+                "padding": "1rem 1.5rem"
+              }
+            }
+          },
+          
+          "DO_NOT": "Use accent colors for table backgrounds, keep neutral dark tones"
+        },
+  
+        "codeBlocks": {
+          "container": {
+            "background": "#1A1A1A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.5rem",
+            "padding": "1rem",
+            "fontFamily": "monospace",
+            "fontSize": "0.813rem",
+            "lineHeight": "1.6",
+            "overflow": "auto"
+          },
+          
+          "text": {
+            "color": "#F5F5F5"
+          },
+          
+          "scrollbar": {
+            "width": "0.5rem",
+            "track": {
+              "background": "#2A2A2A"
+            },
+            "thumb": {
+              "background": "#4A4A4A",
+              "borderRadius": "0.25rem",
+              
+              "hover": {
+                "background": "#5A5A5A"
+              }
+            }
+          }
+        },
+  
+        "charts": {
+          "container": {
+            "background": "#2A2A2A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.75rem",
+            "padding": "1.5rem"
+          },
+          
+          "colors": {
+            "primary": "#E67514",
+            "secondary": "#EF4444",
+            "tertiary": "#F59E0B",
+            "quaternary": "#10B981",
+            "grid": "#333333",
+            "axis": "#8A8A8A"
+          },
+          
+          "legend": {
+            "color": "#BEBEBE",
+            "fontSize": "0.75rem"
+          }
+        },
+  
+        "dividers": {
+          "horizontal": {
+            "background": "#333333",
+            "height": "1px",
+            "margin": "1.5rem 0"
+          },
+          
+          "vertical": {
+            "background": "#333333",
+            "width": "1px",
+            "margin": "0 1.5rem"
+          }
+        },
+  
+        "tooltips": {
+          "container": {
+            "background": "#1A1A1A",
+            "border": "1px solid #333333",
+            "borderRadius": "0.375rem",
+            "padding": "0.5rem 0.75rem",
+            "shadow": "0 4px 12px rgba(0, 0, 0, 0.5)",
+            "maxWidth": "300px"
+          },
+          
+          "text": {
+            "color": "#F5F5F5",
+            "fontSize": "0.75rem",
+            "lineHeight": "1.4"
+          }
+        },
+  
+        "scrollbars": {
+          "width": "0.5rem",
+          "track": {
+            "background": "transparent"
+          },
+          "thumb": {
+            "background": "#4A4A4A",
+            "borderRadius": "0.25rem",
+            
+            "hover": {
+              "background": "#5A5A5A"
+            }
+          }
+        }
+      },
+  
+      "animations": {
+        "transitions": {
+          "fast": "0.15s ease",
+          "normal": "0.2s ease",
+          "slow": "0.3s ease"
+        },
+        
+        "hover": {
+          "lift": "translateY(-2px)",
+          "scale": "scale(1.02)"
+        },
+        
+        "active": {
+          "press": "translateY(0) scale(0.98)"
+        }
+      },
+  
+      "shadows": {
+        "sm": "0 1px 3px rgba(0, 0, 0, 0.3)",
+        "md": "0 2px 8px rgba(0, 0, 0, 0.3)",
+        "lg": "0 4px 16px rgba(0, 0, 0, 0.4)",
+        "accent": "0 4px 16px rgba(230, 117, 20, 0.15)",
+        "accentStrong": "0 8px 24px rgba(230, 117, 20, 0.25)"
+      },
+  
+      "borderRadius": {
+        "sm": "0.375rem",
+        "md": "0.5rem",
+        "lg": "0.75rem",
+        "xl": "1rem",
+        "full": "9999px"
+      },
+  
+      "criticalRules": {
+        "DO": [
+          "Use #212121 for page background ONLY",
+          "Use #2A2A2A for card and component backgrounds",
+          "Use #E67514 for interactive elements and accents",
+          "Use transparent accent backgrounds (rgba(230, 117, 20, 0.1)) for icon containers",
+          "Use solid colors for buttons, no gradients",
+          "Apply shadows to card containers, not content",
+          "Use #333333 for borders and dividers",
+          "Maintain proper text hierarchy with color variations",
+          "Use semantic colors for status indicators",
+          "Keep hover states subtle and consistent"
+        ],
+        
+        "DO_NOT": [
+          "Apply gradients anywhere in this design system",
+          "Use accent color (#E67514) for card backgrounds",
+          "Apply accent color to icon fills without transparent background container",
+          "Use light backgrounds for any elements",
+          "Apply shadows to text or icons",
+          "Use accent color for body text",
+          "Create high-contrast borders (keep subtle at #333333)",
+          "Apply multiple shadows to single elements",
+          "Use bright colors for large surface areas",
+          "Violate the minimal, clean aesthetic with over-styling"
+        ]
+      },
+  
+      "responsiveBreakpoints": {
+        "sm": "640px",
+        "md": "768px",
+        "lg": "1024px",
+        "xl": "1280px",
+        "2xl": "1536px",
+        
+        "behavior": {
+          "mobile": "Stack cards vertically, reduce padding to 1rem",
+          "tablet": "2-column grid for cards, maintain spacing",
+          "desktop": "3-4 column grid, full spacing"
+        }
+      }
+    }
+  }
