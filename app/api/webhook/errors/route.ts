@@ -73,20 +73,23 @@ function determineErrorType(message?: string, nodeType?: string): 'timeout' | 'c
 // Transform n8n error format to WorkflowError
 function transformN8NError(n8nError: N8NErrorPayload): WorkflowError | null {
   try {
-    const workflow = n8nError.workflow || n8nError.error_summary;
+    const workflow = n8nError.workflow;
     const execution = n8nError.execution;
     const error = execution?.error;
+    const errorSummary = n8nError.error_summary;
     
-    if (!workflow || !execution) {
+    // Need either workflow+execution OR error_summary
+    if ((!workflow || !execution) && !errorSummary) {
       return null;
     }
 
-    const workflowId = workflow.id || n8nError.error_summary?.workflow_id || 'unknown';
-    const workflowName = workflow.name || n8nError.error_summary?.workflow_name || 'Unknown Workflow';
-    const executionId = execution.id || n8nError.error_summary?.execution_id || `exec-${Date.now()}`;
+    // Handle case where we have workflow object - use type narrowing
+    const workflowId = (workflow && 'id' in workflow ? workflow.id : undefined) || errorSummary?.workflow_id || 'unknown';
+    const workflowName = (workflow && 'name' in workflow ? workflow.name : undefined) || errorSummary?.workflow_name || 'Unknown Workflow';
+    const executionId = execution?.id || errorSummary?.execution_id || `exec-${Date.now()}`;
     
     // Get node name from error node or last executed node
-    const nodeName = error?.node?.name || execution.lastNodeExecuted || 'Unknown Node';
+    const nodeName = error?.node?.name || execution?.lastNodeExecuted || 'Unknown Node';
     
     // Get error message
     const errorMessage = error?.message || error?.description || 'Unknown error occurred';
@@ -119,8 +122,8 @@ function transformN8NError(n8nError: N8NErrorPayload): WorkflowError | null {
       stackTrace: error?.stack,
       inputData: error?.node?.parameters,
       outputData: {
-        executionUrl: execution.url,
-        mode: execution.mode,
+        executionUrl: execution?.url,
+        mode: execution?.mode,
         nodeType: error?.node?.type,
         nodeId: error?.node?.id,
       },
