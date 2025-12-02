@@ -169,12 +169,15 @@ export const SidebarLink = ({
   const isActive = pathname === link.href;
 
   // Clone the icon and update its color based on active state
-  const iconWithColor = React.cloneElement(link.icon as React.ReactElement, {
-    className: cn(
-      "h-5 w-5 flex-shrink-0",
-      isActive ? "text-white" : "text-[#BEBEBE]"
-    ),
-  });
+  const iconWithColor = React.isValidElement(link.icon)
+    ? React.cloneElement(link.icon as React.ReactElement<any>, {
+        className: cn(
+          "h-5 w-5 flex-shrink-0",
+          isActive ? "text-white" : "text-[#BEBEBE]",
+          (link.icon as React.ReactElement<any>)?.props?.className
+        ),
+      })
+    : link.icon;
 
   return (
     <Link

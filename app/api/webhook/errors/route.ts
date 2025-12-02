@@ -109,7 +109,7 @@ function transformN8NError(n8nError: N8NErrorPayload): WorkflowError | null {
 
     // Get error level and node type from n8n error
     const errorLevel = error?.level || 'warning';
-    const nodeType = error?.node?.type || null;
+    const nodeType = error?.node?.type || undefined;
 
     // Create WorkflowError
     const workflowError: WorkflowError & { errorLevel?: string; nodeType?: string } = {
