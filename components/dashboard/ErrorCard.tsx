@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Clock, Copy, RefreshCw, CheckCircle2, ExternalLink } from 'lucide-react';
+import { Clock, Copy, CheckCircle2, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { WorkflowError } from '@/types';
 import { Badge } from '../ui/Badge';
@@ -9,8 +9,9 @@ import { Card } from '../ui/Card';
 interface ErrorCardProps {
   error: WorkflowError;
   onViewDetails: (error: WorkflowError) => void;
-  onRetry: (errorId: string) => void;
   onMarkResolved: (errorId: string) => void;
+  showUnmarkButton?: boolean; // If true, show "Unmark as Resolved" instead
+  isResolved?: boolean; // If true, show resolved indicator
 }
 
 const severityMap: Record<string, 'error' | 'warning' | 'info'> = {
@@ -31,8 +32,9 @@ const errorTypeLabels: Record<string, string> = {
 export const ErrorCard: React.FC<ErrorCardProps> = ({
   error,
   onViewDetails,
-  onRetry,
   onMarkResolved,
+  showUnmarkButton = false,
+  isResolved = false,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
@@ -49,7 +51,10 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
       : error.errorMessage;
 
   return (
-    <Card hover className="mb-4">
+    <Card 
+      hover 
+      className={`mb-4 relative ${isResolved ? '!bg-[#1a3a2a] !border-[#2d5a3f] hover:!border-[#2d5a3f]' : ''}`}
+    >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-[#F5F5F5]">{error.workflowName}</h3>
         <Badge variant={severityMap[error.severity] || 'neutral'}>
@@ -103,17 +108,32 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
       </div>
 
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4">
+        {error.outputData?.executionUrl && (
+          <Button 
+            variant="primary" 
+            onClick={() => window.open(error.outputData?.executionUrl, '_blank')} 
+            className="flex-1 sm:flex-initial"
+          >
+            <ExternalLink size={16} className="mr-2" />
+            Check Error
+          </Button>
+        )}
         <Button variant="primary" onClick={() => onViewDetails(error)} className="flex-1 sm:flex-initial">
           <ExternalLink size={16} className="mr-2" />
           View Details
         </Button>
-        <Button variant="secondary" onClick={() => onRetry(error.id)} className="flex-1 sm:flex-initial">
-          <RefreshCw size={16} className="mr-2" />
-          Retry
-        </Button>
-        <Button variant="ghost" onClick={() => onMarkResolved(error.id)} className="flex-1 sm:flex-initial">
+        <Button
+          variant="ghost"
+          onClick={() => onMarkResolved(error.id)}
+          className="flex-1 sm:flex-initial !border !border-[#E67514] hover:!bg-[#E67514]/10"
+          style={{ 
+            borderWidth: '1px', 
+            borderStyle: 'solid', 
+            borderColor: '#E67514'
+          }}
+        >
           <CheckCircle2 size={16} className="mr-2" />
-          Mark Resolved
+          {showUnmarkButton ? 'Unmark as Resolved' : 'Mark Resolved'}
         </Button>
       </div>
     </Card>

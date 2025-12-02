@@ -8,14 +8,13 @@ import { ErrorFilters } from '@/components/dashboard/ErrorFilters';
 import { ErrorDetailsModal } from '@/components/dashboard/ErrorDetailsModal';
 import { Button } from '@/components/ui/Button';
 
-export default function ErrorsPage() {
+export default function FixedErrorsPage() {
   const [errors, setErrors] = useState<WorkflowError[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchErrors = async () => {
     try {
-      // Only fetch errors that are NOT fixed
-      const response = await fetch('/api/errors?fixed=false');
+      const response = await fetch('/api/errors?fixed=true');
       if (response.ok) {
         const data = await response.json();
         // Convert timestamp strings back to Date objects
@@ -23,21 +22,14 @@ export default function ErrorsPage() {
           ...error,
           timestamp: error.timestamp ? new Date(error.timestamp) : new Date(),
         }));
-        console.log(`[Frontend] Fetched ${errors.length} errors (fixed=false)`);
-        if (errors.length > 0) {
-          console.log(`[Frontend] First error:`, {
-            id: errors[0].id,
-            workflowName: errors[0].workflowName,
-            resolved: errors[0].resolved,
-          });
-        }
+        console.log(`[Frontend] Fetched ${errors.length} fixed errors`);
         setErrors(errors);
       } else {
-        console.error('Failed to fetch errors');
+        console.error('Failed to fetch fixed errors');
         setErrors([]);
       }
     } catch (error) {
-      console.error('Error fetching errors:', error);
+      console.error('Error fetching fixed errors:', error);
       setErrors([]);
     } finally {
       setIsLoading(false);
@@ -106,16 +98,8 @@ export default function ErrorsPage() {
       });
     }
 
-    // Workflow status filter
-    if (workflowStatus !== 'all') {
-      // In a real app, this would check actual workflow status
-      // For now, we'll filter by resolved status
-      if (workflowStatus === 'active') {
-        filtered = filtered.filter((error) => !error.resolved);
-      } else if (workflowStatus === 'paused') {
-        filtered = filtered.filter((error) => error.resolved);
-      }
-    }
+    // Workflow status filter - for fixed errors, we show all (they're all resolved)
+    // This filter doesn't really apply here, but we keep it for consistency
 
     // Error type filter
     if (errorType !== 'all') {
@@ -132,16 +116,8 @@ export default function ErrorsPage() {
 
 
   const handleMarkResolved = async (errorId: string) => {
+    // For fixed errors page, we can allow unmarking as resolved
     try {
-      console.log('[Frontend] ========== MARK RESOLVED ==========');
-      console.log('[Frontend] Error ID being sent:', errorId);
-      console.log('[Frontend] Error ID type:', typeof errorId);
-      console.log('[Frontend] Error ID starts with "rec":', errorId?.startsWith('rec'));
-      
-      // Find the full error object to log more details
-      const errorObj = errors.find(e => e.id === errorId);
-      console.log('[Frontend] Full error object:', errorObj);
-      
       const response = await fetch('/api/errors', {
         method: 'PATCH',
         headers: {
@@ -149,40 +125,26 @@ export default function ErrorsPage() {
         },
         body: JSON.stringify({
           id: errorId,
-          resolved: true,
+          resolved: false,
         }),
       });
 
-      const responseData = await response.json().catch(() => ({}));
-      console.log('[Frontend] Response status:', response.status);
-      console.log('[Frontend] Response data:', JSON.stringify(responseData, null, 2));
-
       if (response.ok) {
-        console.log('[Frontend] ✅ Successfully marked as resolved');
-        // Remove the error from the local state immediately for better UX
-        setErrors(prevErrors => prevErrors.filter(e => e.id !== errorId));
-        
-        // Wait 2 seconds for Supabase to process and cache to clear, then refresh
-        // This ensures we get the updated data from Supabase
-        setTimeout(async () => {
-          console.log('[Frontend] Refreshing errors after update...');
+        // Refresh errors - this will remove it from fixed errors
         await fetchErrors();
-        }, 2000);
       } else {
-        console.error('[Frontend] Failed to mark as resolved:', response.status, responseData);
-        const errorMessage = responseData.message || responseData.error || `HTTP ${response.status}: ${response.statusText}`;
-        alert(`Failed to mark error as resolved: ${errorMessage}\n\nCheck the browser console for more details.`);
+        alert('Failed to unmark error as resolved');
       }
     } catch (error) {
-      console.error('[Frontend] Error marking as resolved:', error);
-      alert(`Failed to mark error as resolved: ${error instanceof Error ? error.message : 'Network error'}\n\nCheck the browser console for more details.`);
+      console.error('Error unmarking resolved:', error);
+      alert('Failed to unmark error as resolved');
     }
   };
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-[#BEBEBE]">Loading errors...</div>
+        <div className="text-[#BEBEBE]">Loading fixed errors...</div>
       </div>
     );
   }
@@ -204,7 +166,7 @@ export default function ErrorsPage() {
 
       <div className="mb-4 flex items-center justify-between">
         <div className="text-sm text-[#BEBEBE]">
-          Showing {filteredErrors.length} of {errors.length} errors
+          Showing {filteredErrors.length} of {errors.length} fixed errors
         </div>
         <Button variant="secondary" onClick={fetchErrors}>
           <RefreshCw size={16} className="mr-2" />
@@ -215,7 +177,7 @@ export default function ErrorsPage() {
       {filteredErrors.length === 0 ? (
         <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl p-8 md:p-12 text-center">
           <AlertCircle size={48} className="mx-auto mb-4 text-[#8A8A8A]" />
-          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No errors found</h3>
+          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No fixed errors found</h3>
           <p className="text-sm text-[#BEBEBE]">
             Try adjusting your filters to see more results.
           </p>
@@ -228,7 +190,8 @@ export default function ErrorsPage() {
               error={error}
               onViewDetails={handleViewDetails}
               onMarkResolved={handleMarkResolved}
-              isResolved={false}
+              showUnmarkButton={true}
+              isResolved={true}
             />
           ))}
         </div>

@@ -107,8 +107,12 @@ function transformN8NError(n8nError: N8NErrorPayload): WorkflowError | null {
           ? new Date(n8nError.error_summary.error_occurred_at) 
           : new Date());
 
+    // Get error level and node type from n8n error
+    const errorLevel = error?.level || 'warning';
+    const nodeType = error?.node?.type || null;
+
     // Create WorkflowError
-    const workflowError: WorkflowError = {
+    const workflowError: WorkflowError & { errorLevel?: string; nodeType?: string } = {
       id: `error-${executionId}-${Date.now()}`,
       workflowId,
       workflowName,
@@ -128,6 +132,8 @@ function transformN8NError(n8nError: N8NErrorPayload): WorkflowError | null {
         nodeId: error?.node?.id,
       },
       resolved: false,
+      errorLevel, // Add error level for Supabase
+      nodeType, // Add node type for Supabase
     };
 
     return workflowError;
@@ -198,7 +204,7 @@ export async function POST(request: NextRequest) {
 
     // Add valid errors to store
     if (validErrors.length > 0) {
-      errorStore.addErrors(validErrors);
+      await errorStore.addErrors(validErrors);
     }
 
     // Return response
@@ -231,7 +237,7 @@ export async function POST(request: NextRequest) {
 
 // GET endpoint to retrieve errors (optional, for debugging)
 export async function GET() {
-  const errors = errorStore.getAllErrors();
+  const errors = await errorStore.getAllErrors();
   return NextResponse.json({
     count: errors.length,
     errors: errors.slice(0, 100), // Return first 100 for debugging
@@ -240,7 +246,7 @@ export async function GET() {
 
 // DELETE endpoint to clear all errors (optional, for testing)
 export async function DELETE() {
-  errorStore.clearAll();
+  await errorStore.clearAll();
   return NextResponse.json({
     success: true,
     message: 'All errors cleared',
