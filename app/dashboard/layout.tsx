@@ -27,10 +27,12 @@ export default function DashboardLayout({
     // Clear localStorage
     localStorage.removeItem('isAuthenticated');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('userName');
     
     // Clear cookies
     document.cookie = 'isAuthenticated=; path=/; max-age=0';
     document.cookie = 'userEmail=; path=/; max-age=0';
+    document.cookie = 'userName=; path=/; max-age=0';
     
     // Call logout API
     await fetch('/api/auth/logout', { method: 'POST' });

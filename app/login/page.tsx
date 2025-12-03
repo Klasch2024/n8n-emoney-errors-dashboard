@@ -21,10 +21,12 @@ export default function LoginPage() {
     // Valid users array
     const validUsers = [
       {
+        name: 'Henrique Schalk',
         email: 'schalkadvision@gmail.com',
         password: 'Emoney2025',
       },
       {
+        name: 'Steve Ernst',
         email: 'stevenaernst@gmail.com',
         password: 'Emoney2025',
       },
@@ -39,10 +41,12 @@ export default function LoginPage() {
       // Store auth in cookie (for server-side middleware)
       document.cookie = `isAuthenticated=true; path=/; max-age=86400`; // 24 hours
       document.cookie = `userEmail=${encodeURIComponent(email)}; path=/; max-age=86400`;
+      document.cookie = `userName=${encodeURIComponent(user.name)}; path=/; max-age=86400`;
       
       // Also store in localStorage for client-side checks
       localStorage.setItem('isAuthenticated', 'true');
       localStorage.setItem('userEmail', email);
+      localStorage.setItem('userName', user.name);
       
       // Small delay to ensure cookie is set
       setTimeout(() => {
