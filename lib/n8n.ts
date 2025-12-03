@@ -1,10 +1,8 @@
-const N8N_API_KEY = process.env.N8N_API_KEY;
-const N8N_BASE_URL = process.env.N8N_BASE_URL || 'https://n8n.srv1023747.hstgr.cloud';
+const N8N_API_KEY = process.env.N8N_API_KEY || '';
+const N8N_BASE_URL = process.env.N8N_BASE_URL || '';
 
-if (!N8N_API_KEY) {
+if (!N8N_API_KEY && process.env.NODE_ENV === 'development') {
   console.warn('[N8N] ⚠️ API key not configured. Some features may not work.');
-} else {
-  console.log('[N8N] ✅ API configuration loaded');
 }
 
 export interface N8NWorkflow {
@@ -46,8 +44,10 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
       if (cursor) {
         url += `&cursor=${cursor}`;
       }
-      console.log(`[N8N] Fetching page ${pageCount} from:`, url);
-      console.log(`[N8N] Cursor: ${cursor || 'none'}, Limit: ${limit}`);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[N8N] Fetching page ${pageCount} from:`, url);
+        console.log(`[N8N] Cursor: ${cursor || 'none'}, Limit: ${limit}`);
+      }
       
       const response = await fetch(url, {
         method: 'GET',
@@ -67,7 +67,9 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
       }
 
       const data = await response.json();
-      console.log(`[N8N] Page ${pageCount} response data type:`, typeof data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[N8N] Page ${pageCount} response data type:`, typeof data);
+      }
       
       // Handle different response formats
       let workflows: N8NWorkflow[] = [];
@@ -89,8 +91,10 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
         workflows = [data.workflow];
       }
       
-      console.log(`[N8N] Page ${pageCount}: Fetched ${workflows.length} workflows`);
-      console.log(`[N8N] Next cursor:`, nextCursor);
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[N8N] Page ${pageCount}: Fetched ${workflows.length} workflows`);
+        console.log(`[N8N] Next cursor:`, nextCursor);
+      }
       
       if (workflows.length > 0) {
         allWorkflows.push(...workflows);
@@ -99,11 +103,15 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
       // Check if there's a next page
       if (nextCursor) {
         cursor = nextCursor;
-        console.log('[N8N] More pages available, continuing...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[N8N] More pages available, continuing...');
+        }
       } else {
         // No more pages
         hasMore = false;
-        console.log('[N8N] No more pages (no nextCursor)');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[N8N] No more pages (no nextCursor)');
+        }
       }
       
       // Safety check to prevent infinite loops
@@ -113,16 +121,18 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
       }
     }
     
-    console.log(`[N8N] ✅ Total fetched: ${allWorkflows.length} workflows across ${pageCount} page(s)`);
-    if (allWorkflows.length > 0) {
-      const activeCount = allWorkflows.filter(w => w.active).length;
-      console.log('[N8N] Active workflows:', activeCount);
-      console.log('[N8N] Inactive workflows:', allWorkflows.length - activeCount);
-      console.log('[N8N] First workflow:', {
-        id: allWorkflows[0].id,
-        name: allWorkflows[0].name,
-        active: allWorkflows[0].active,
-      });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[N8N] ✅ Total fetched: ${allWorkflows.length} workflows across ${pageCount} page(s)`);
+      if (allWorkflows.length > 0) {
+        const activeCount = allWorkflows.filter(w => w.active).length;
+        console.log('[N8N] Active workflows:', activeCount);
+        console.log('[N8N] Inactive workflows:', allWorkflows.length - activeCount);
+        console.log('[N8N] First workflow:', {
+          id: allWorkflows[0].id,
+          name: allWorkflows[0].name,
+          active: allWorkflows[0].active,
+        });
+      }
     }
     
     return allWorkflows;

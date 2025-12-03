@@ -1,13 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 import { WorkflowError } from '@/types';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://zdcevpdampwgxdzlnymu.supabase.co';
-const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpkY2V2cGRhbXB3Z3hkemxueW11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTMyMjAxNDUsImV4cCI6MjA2ODc5NjE0NX0.VmKEcyulTQDZjegC1Rdn8QFhsNL-m7t7xbsdoJCkes8';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+if ((!SUPABASE_URL || !SUPABASE_ANON_KEY) && process.env.NODE_ENV === 'development') {
   console.warn('[Supabase] ⚠️ Configuration missing. Some features may not work.');
-} else {
-  console.log('[Supabase] ✅ Configuration loaded successfully');
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -69,7 +67,9 @@ function supabaseRowToError(row: any): WorkflowError {
 // Fetch all errors from Supabase
 export async function fetchAllErrors(): Promise<WorkflowError[]> {
   try {
-    console.log('[Supabase] Fetching all errors...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] Fetching all errors...');
+    }
     
     const { data, error } = await supabase
       .from('workflow_errors')
@@ -82,19 +82,22 @@ export async function fetchAllErrors(): Promise<WorkflowError[]> {
     }
 
     if (!data) {
-      console.log('[Supabase] No errors found');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Supabase] No errors found');
+      }
       return [];
     }
 
     const errors = data.map(supabaseRowToError);
-    console.log(`[Supabase] ✅ Fetched ${errors.length} errors`);
-    
-    if (errors.length > 0) {
-      console.log(`[Supabase] First error:`, {
-        id: errors[0].id,
-        workflowName: errors[0].workflowName,
-        resolved: errors[0].resolved,
-      });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Supabase] ✅ Fetched ${errors.length} errors`);
+      if (errors.length > 0) {
+        console.log(`[Supabase] First error:`, {
+          id: errors[0].id,
+          workflowName: errors[0].workflowName,
+          resolved: errors[0].resolved,
+        });
+      }
     }
 
     return errors;
@@ -107,7 +110,9 @@ export async function fetchAllErrors(): Promise<WorkflowError[]> {
 // Create a new error in Supabase
 export async function createError(error: WorkflowError): Promise<WorkflowError> {
   try {
-    console.log('[Supabase] Creating error:', error.id);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] Creating error:', error.id);
+    }
     
     const row = errorToSupabaseRow(error);
     
@@ -127,7 +132,9 @@ export async function createError(error: WorkflowError): Promise<WorkflowError> 
       return error;
     }
 
-    console.log('[Supabase] ✅ Error created successfully');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] ✅ Error created successfully');
+    }
     return supabaseRowToError(data);
   } catch (error) {
     console.error('[Supabase] Exception creating error:', error);
@@ -166,9 +173,11 @@ export async function updateError(id: string, updates: Partial<WorkflowError>): 
     if (extendedUpdates.errorLevel !== undefined) updateData.error_level = extendedUpdates.errorLevel;
     if (extendedUpdates.nodeType !== undefined) updateData.node_type = extendedUpdates.nodeType;
 
-    console.log('[Supabase] Updating record with ID:', id);
-    console.log('[Supabase] Update data:', JSON.stringify(updateData, null, 2));
-    console.log('[Supabase] Fixed field value:', updateData.fixed);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] Updating record with ID:', id);
+      console.log('[Supabase] Update data:', JSON.stringify(updateData, null, 2));
+      console.log('[Supabase] Fixed field value:', updateData.fixed);
+    }
 
     const { data, error } = await supabase
       .from('workflow_errors')
@@ -193,18 +202,22 @@ export async function updateError(id: string, updates: Partial<WorkflowError>): 
       return false;
     }
 
-    console.log('[Supabase] ✅ Successfully updated record:', id);
-    console.log('[Supabase] Updated record:', JSON.stringify(data, null, 2));
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] ✅ Successfully updated record:', id);
+      console.log('[Supabase] Updated record:', JSON.stringify(data, null, 2));
+    }
     
     // Verify the Fixed field was actually updated
     if (data.fixed !== undefined) {
-      console.log('[Supabase] ✅ Fixed field value after update:', data.fixed);
-      if (data.fixed === 'TRUE') {
-        console.log('[Supabase] ✅✅✅ Fixed field successfully set to TRUE!');
-      } else {
-        console.warn('[Supabase] ⚠️ Fixed field value is not TRUE:', data.fixed);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Supabase] ✅ Fixed field value after update:', data.fixed);
+        if (data.fixed === 'TRUE') {
+          console.log('[Supabase] ✅✅✅ Fixed field successfully set to TRUE!');
+        } else {
+          console.warn('[Supabase] ⚠️ Fixed field value is not TRUE:', data.fixed);
+        }
       }
-    } else {
+    } else if (process.env.NODE_ENV === 'development') {
       console.error('[Supabase] ❌ ERROR: Fixed field not found in response!');
     }
 
@@ -225,7 +238,9 @@ export async function updateError(id: string, updates: Partial<WorkflowError>): 
 // Delete an error from Supabase
 export async function deleteError(id: string): Promise<boolean> {
   try {
-    console.log('[Supabase] Deleting error:', id);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] Deleting error:', id);
+    }
     
     const { error } = await supabase
       .from('workflow_errors')
@@ -237,7 +252,9 @@ export async function deleteError(id: string): Promise<boolean> {
       return false;
     }
 
-    console.log('[Supabase] ✅ Error deleted successfully');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Supabase] ✅ Error deleted successfully');
+    }
     return true;
   } catch (error) {
     console.error('[Supabase] Exception deleting error:', error);

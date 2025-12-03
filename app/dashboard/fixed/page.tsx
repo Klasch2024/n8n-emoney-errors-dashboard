@@ -22,7 +22,9 @@ export default function FixedErrorsPage() {
           ...error,
           timestamp: error.timestamp ? new Date(error.timestamp) : new Date(),
         }));
-        console.log(`[Frontend] Fetched ${errors.length} fixed errors`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Frontend] Fetched ${errors.length} fixed errors`);
+        }
         setErrors(errors);
       } else {
         console.error('Failed to fetch fixed errors');

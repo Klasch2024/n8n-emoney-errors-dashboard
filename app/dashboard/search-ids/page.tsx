@@ -86,7 +86,9 @@ export default function SearchIdsPage() {
       
       setCustomFields(result.data || []);
     } catch (err) {
-      console.error('Error fetching custom fields:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching custom fields:', err);
+      }
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
@@ -106,7 +108,9 @@ export default function SearchIdsPage() {
       
       setUsers(result.data || []);
     } catch (err) {
-      console.error('Error fetching users:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching users:', err);
+      }
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
@@ -126,7 +130,9 @@ export default function SearchIdsPage() {
       
       setLeadStatuses(result.data || []);
     } catch (err) {
-      console.error('Error fetching lead statuses:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching lead statuses:', err);
+      }
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
@@ -146,7 +152,9 @@ export default function SearchIdsPage() {
       
       setOpportunityStatuses(result.data || []);
     } catch (err) {
-      console.error('Error fetching opportunity statuses:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching opportunity statuses:', err);
+      }
       setError(err instanceof Error ? err.message : 'Unknown error occurred');
     } finally {
       setLoading(false);
@@ -202,7 +210,9 @@ export default function SearchIdsPage() {
       setCopiedId(id);
       setTimeout(() => setCopiedId(null), 2000);
     } catch (err) {
-      console.error('Failed to copy:', err);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to copy:', err);
+      }
     }
   };
 

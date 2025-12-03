@@ -16,11 +16,15 @@ export interface CloseCustomField {
 
 export async function fetchLeadCustomFields(): Promise<CloseCustomField[]> {
   if (!CLOSE_API_KEY) {
-    console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    }
     throw new Error('Close API key is not configured');
   }
 
-  console.log('[Close] Fetching lead custom fields from:', `${CLOSE_BASE_URL}/custom_field/lead/`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Close] Fetching lead custom fields from:', `${CLOSE_BASE_URL}/custom_field/lead/`);
+  }
 
   try {
     // Close CRM uses Basic Auth with API key as username and empty password
@@ -34,18 +38,24 @@ export async function fetchLeadCustomFields(): Promise<CloseCustomField[]> {
       },
     });
 
-    console.log('[Close] Response status:', response.status, response.statusText);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Close] Response status:', response.status, response.statusText);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Close] ❌ Error fetching custom fields:', response.status);
-      console.error('[Close] Error response:', errorText);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Close] ❌ Error fetching custom fields:', response.status);
+        console.error('[Close] Error response:', errorText);
+      }
       throw new Error(`Failed to fetch custom fields: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('[Close] Response data type:', typeof data);
-    console.log('[Close] Response keys:', Object.keys(data || {}));
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Close] Response data type:', typeof data);
+      console.log('[Close] Response keys:', Object.keys(data || {}));
+    }
     
     // Close CRM API returns data in a "data" array
     let customFields: CloseCustomField[] = [];
@@ -57,19 +67,22 @@ export async function fetchLeadCustomFields(): Promise<CloseCustomField[]> {
       customFields = data.results;
     }
 
-    console.log(`[Close] ✅ Fetched ${customFields.length} custom fields`);
-    
-    if (customFields.length > 0) {
-      console.log('[Close] First custom field:', {
-        id: customFields[0].id,
-        name: customFields[0].name,
-        type: customFields[0].type,
-      });
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`[Close] ✅ Fetched ${customFields.length} custom fields`);
+      if (customFields.length > 0) {
+        console.log('[Close] First custom field:', {
+          id: customFields[0].id,
+          name: customFields[0].name,
+          type: customFields[0].type,
+        });
+      }
     }
     
     return customFields;
   } catch (error) {
-    console.error('[Close] ❌ Error in fetchLeadCustomFields:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ Error in fetchLeadCustomFields:', error);
+    }
     if (error instanceof Error) {
       throw error;
     }
@@ -79,11 +92,15 @@ export async function fetchLeadCustomFields(): Promise<CloseCustomField[]> {
 
 export async function fetchOpportunityCustomFields(): Promise<CloseCustomField[]> {
   if (!CLOSE_API_KEY) {
-    console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    }
     throw new Error('Close API key is not configured');
   }
 
-  console.log('[Close] Fetching opportunity custom fields from:', `${CLOSE_BASE_URL}/custom_field/opportunity/`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Close] Fetching opportunity custom fields from:', `${CLOSE_BASE_URL}/custom_field/opportunity/`);
+  }
 
   try {
     // Close CRM uses Basic Auth with API key as username and empty password
@@ -97,18 +114,24 @@ export async function fetchOpportunityCustomFields(): Promise<CloseCustomField[]
       },
     });
 
-    console.log('[Close] Response status:', response.status, response.statusText);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Close] Response status:', response.status, response.statusText);
+    }
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Close] ❌ Error fetching custom fields:', response.status);
-      console.error('[Close] Error response:', errorText);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Close] ❌ Error fetching custom fields:', response.status);
+        console.error('[Close] Error response:', errorText);
+      }
       throw new Error(`Failed to fetch custom fields: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
-    console.log('[Close] Response data type:', typeof data);
-    console.log('[Close] Response keys:', Object.keys(data || {}));
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[Close] Response data type:', typeof data);
+      console.log('[Close] Response keys:', Object.keys(data || {}));
+    }
     
     // Close CRM API returns data in a "data" array
     let customFields: CloseCustomField[] = [];
@@ -154,11 +177,15 @@ export interface CloseUser {
 
 export async function fetchUsers(): Promise<CloseUser[]> {
   if (!CLOSE_API_KEY) {
-    console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    }
     throw new Error('Close API key is not configured');
   }
 
-  console.log('[Close] Fetching users from:', `${CLOSE_BASE_URL}/user/`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Close] Fetching users from:', `${CLOSE_BASE_URL}/user/`);
+  }
 
   try {
     // Close CRM uses Basic Auth with API key as username and empty password
@@ -225,11 +252,15 @@ export interface CloseLeadStatus {
 
 export async function fetchLeadStatuses(): Promise<CloseLeadStatus[]> {
   if (!CLOSE_API_KEY) {
-    console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    }
     throw new Error('Close API key is not configured');
   }
 
-  console.log('[Close] Fetching lead statuses from:', `${CLOSE_BASE_URL}/status/lead/`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Close] Fetching lead statuses from:', `${CLOSE_BASE_URL}/status/lead/`);
+  }
 
   try {
     // Close CRM uses Basic Auth with API key as username and empty password
@@ -296,11 +327,15 @@ export interface CloseOpportunityStatus {
 
 export async function fetchOpportunityStatuses(): Promise<CloseOpportunityStatus[]> {
   if (!CLOSE_API_KEY) {
-    console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Close] ❌ CLOSE_API_KEY is not configured');
+    }
     throw new Error('Close API key is not configured');
   }
 
-  console.log('[Close] Fetching opportunity statuses from:', `${CLOSE_BASE_URL}/status/opportunity/`);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('[Close] Fetching opportunity statuses from:', `${CLOSE_BASE_URL}/status/opportunity/`);
+  }
 
   try {
     // Close CRM uses Basic Auth with API key as username and empty password

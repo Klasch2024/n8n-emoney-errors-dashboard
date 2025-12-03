@@ -27,13 +27,13 @@ export default function WorkflowsPage() {
     try {
       setLoading(true);
       setError(null);
-      console.log('[Frontend] Fetching workflows...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Frontend] Fetching workflows...');
+      }
       
       const response = await fetch('/api/workflows');
-      console.log('[Frontend] Response status:', response.status);
       
       const data = await response.json();
-      console.log('[Frontend] Response data:', data);
 
       if (!response.ok) {
         throw new Error(data.message || data.error || 'Failed to fetch workflows');
@@ -44,8 +44,9 @@ export default function WorkflowsPage() {
         ? data 
         : (Array.isArray(data.workflows) ? data.workflows : []);
       
-      console.log('[Frontend] Workflows list:', workflowsList);
-      console.log('[Frontend] Workflows count:', workflowsList.length);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Frontend] Workflows count:', workflowsList.length);
+      }
       
       setWorkflows(workflowsList);
     } catch (err) {
@@ -234,7 +235,7 @@ export default function WorkflowsPage() {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    const n8nUrl = 'https://n8n.srv1023747.hstgr.cloud';
+                    const n8nUrl = process.env.NEXT_PUBLIC_N8N_BASE_URL || process.env.N8N_BASE_URL || '';
                     window.open(`${n8nUrl}/workflow/${workflow.id}`, '_blank');
                   }}
                   className="w-full"

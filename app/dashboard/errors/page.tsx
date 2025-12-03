@@ -17,13 +17,11 @@ export default function ErrorsPage() {
     // Check if notification sound is enabled in settings
     const soundEnabled = localStorage.getItem('notificationSoundEnabled');
     if (soundEnabled === 'false') {
-      console.log('[Frontend] Notification sound is disabled in settings');
       return;
     }
 
     // Check if page is visible (not in background tab)
     if (document.hidden || document.visibilityState === 'hidden') {
-      console.log('[Frontend] Page is hidden, skipping notification sound');
       return;
     }
 
@@ -45,10 +43,10 @@ export default function ErrorsPage() {
 
       oscillator.start(audioContext.currentTime);
       oscillator.stop(audioContext.currentTime + 0.3);
-      
-      console.log('[Frontend] 🔊 Notification sound played');
     } catch (error) {
-      console.error('Error playing notification sound:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error playing notification sound:', error);
+      }
     }
   };
 
@@ -63,29 +61,25 @@ export default function ErrorsPage() {
           ...error,
           timestamp: error.timestamp ? new Date(error.timestamp) : new Date(),
         }));
-        console.log(`[Frontend] Fetched ${errors.length} errors (fixed=false)`);
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`[Frontend] Fetched ${errors.length} errors (fixed=false)`);
+        }
         
         // Check for new errors
         if (previousErrorIds.size > 0 && errors.length > 0) {
-          const currentErrorIds = new Set(errors.map((e: WorkflowError) => e.id));
-          const newErrorIds = [...currentErrorIds].filter(id => !previousErrorIds.has(id));
+          const currentErrorIds = new Set<string>(errors.map((e: WorkflowError) => e.id));
+          const newErrorIds = Array.from<string>(currentErrorIds).filter((id: string) => !previousErrorIds.has(id));
           
           if (newErrorIds.length > 0) {
-            console.log(`[Frontend] 🎵 New errors detected: ${newErrorIds.length}`);
+            if (process.env.NODE_ENV === 'development') {
+              console.log(`[Frontend] 🎵 New errors detected: ${newErrorIds.length}`);
+            }
             playNotificationSound();
           }
         }
         
         // Update previous error IDs
         setPreviousErrorIds(new Set(errors.map((e: WorkflowError) => e.id)));
-        
-        if (errors.length > 0) {
-          console.log(`[Frontend] First error:`, {
-            id: errors[0].id,
-            workflowName: errors[0].workflowName,
-            resolved: errors[0].resolved,
-          });
-        }
         setErrors(errors);
       } else {
         console.error('Failed to fetch errors');
@@ -188,14 +182,9 @@ export default function ErrorsPage() {
 
   const handleMarkResolved = async (errorId: string) => {
     try {
-      console.log('[Frontend] ========== MARK RESOLVED ==========');
-      console.log('[Frontend] Error ID being sent:', errorId);
-      console.log('[Frontend] Error ID type:', typeof errorId);
-      console.log('[Frontend] Error ID starts with "rec":', errorId?.startsWith('rec'));
-      
-      // Find the full error object to log more details
-      const errorObj = errors.find(e => e.id === errorId);
-      console.log('[Frontend] Full error object:', errorObj);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Frontend] Marking error as resolved:', errorId);
+      }
       
       const response = await fetch('/api/errors', {
         method: 'PATCH',
@@ -209,28 +198,25 @@ export default function ErrorsPage() {
       });
 
       const responseData = await response.json().catch(() => ({}));
-      console.log('[Frontend] Response status:', response.status);
-      console.log('[Frontend] Response data:', JSON.stringify(responseData, null, 2));
 
       if (response.ok) {
-        console.log('[Frontend] ✅ Successfully marked as resolved');
         // Remove the error from the local state immediately for better UX
         setErrors(prevErrors => prevErrors.filter(e => e.id !== errorId));
         
         // Wait 2 seconds for Supabase to process and cache to clear, then refresh
         // This ensures we get the updated data from Supabase
         setTimeout(async () => {
-          console.log('[Frontend] Refreshing errors after update...');
-        await fetchErrors();
+          await fetchErrors();
         }, 2000);
       } else {
-        console.error('[Frontend] Failed to mark as resolved:', response.status, responseData);
         const errorMessage = responseData.message || responseData.error || `HTTP ${response.status}: ${response.statusText}`;
-        alert(`Failed to mark error as resolved: ${errorMessage}\n\nCheck the browser console for more details.`);
+        alert(`Failed to mark error as resolved: ${errorMessage}`);
       }
     } catch (error) {
-      console.error('[Frontend] Error marking as resolved:', error);
-      alert(`Failed to mark error as resolved: ${error instanceof Error ? error.message : 'Network error'}\n\nCheck the browser console for more details.`);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('[Frontend] Error marking as resolved:', error);
+      }
+      alert(`Failed to mark error as resolved: ${error instanceof Error ? error.message : 'Network error'}`);
     }
   };
 
