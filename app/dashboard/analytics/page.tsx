@@ -10,7 +10,7 @@ import {
   ArrowDown,
 } from 'lucide-react';
 import { WorkflowError, ErrorAnalytics } from '@/types';
-import { generateMockAnalytics } from '@/lib/mockData';
+import { calculateAnalytics, calculateTrendChange } from '@/lib/analytics';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { Card } from '@/components/ui/Card';
 import {
@@ -32,6 +32,7 @@ import { format } from 'date-fns';
 
 export default function AnalyticsPage() {
   const [errors, setErrors] = useState<WorkflowError[]>([]);
+  const [previousErrors, setPreviousErrors] = useState<WorkflowError[]>([]);
   const [analytics, setAnalytics] = useState<ErrorAnalytics | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -40,12 +41,18 @@ export default function AnalyticsPage() {
       const response = await fetch('/api/errors');
       if (response.ok) {
         const data = await response.json();
-        const fetchedErrors = data.errors || [];
+        const fetchedErrors = (data.errors || []).map((error: any) => ({
+          ...error,
+          timestamp: error.timestamp ? new Date(error.timestamp) : new Date(),
+        }));
+        
+        // Store previous errors for trend calculation
+        setPreviousErrors(errors);
         setErrors(fetchedErrors);
         
-        // Generate analytics from fetched errors
+        // Calculate real analytics from fetched errors
         if (fetchedErrors.length > 0) {
-          setAnalytics(generateMockAnalytics(fetchedErrors));
+          setAnalytics(calculateAnalytics(fetchedErrors));
         } else {
           // If no errors, create empty analytics
           setAnalytics({
@@ -59,12 +66,16 @@ export default function AnalyticsPage() {
           });
         }
       } else {
-        console.error('Failed to fetch errors');
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Failed to fetch errors');
+        }
         setErrors([]);
         setAnalytics(null);
       }
     } catch (error) {
-      console.error('Error fetching errors:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Error fetching errors:', error);
+      }
       setErrors([]);
       setAnalytics(null);
     } finally {
@@ -108,11 +119,31 @@ export default function AnalyticsPage() {
       .reverse();
   }, [analytics]);
 
-  const COLORS = ['#E67514', '#EF4444', '#F59E0B', '#10B981', '#3B82F6'];
+  const COLORS = ['#E67514', '#F59E0B', '#EF4444', '#10B981', '#3B82F6'];
 
-  const totalErrorsChange = 5.2; // Mock change percentage
-  const errorRateChange = -12.5; // Mock change percentage
-  const avgResolutionChange = -8.3; // Mock change percentage
+  // Calculate trend changes
+  const totalErrorsChange = useMemo(() => {
+    if (!analytics || previousErrors.length === 0) {
+      return { value: 0, isPositive: true };
+    }
+    return calculateTrendChange(analytics.totalErrors, previousErrors.length);
+  }, [analytics, previousErrors]);
+
+  const errorRateChange = useMemo(() => {
+    if (!analytics) return { value: 0, isPositive: true };
+    const now = new Date();
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const previous24Hours = new Date(now.getTime() - 48 * 60 * 60 * 1000);
+    
+    const currentRate = errors.filter((e) => e.timestamp >= last24Hours).length / 24;
+    const previousRate = previousErrors.filter(
+      (e) => e.timestamp >= previous24Hours && e.timestamp < last24Hours
+    ).length / 24;
+    
+    return calculateTrendChange(currentRate, previousRate);
+  }, [analytics, errors, previousErrors]);
+
+  const avgResolutionChange = { value: 8.3, isPositive: false }; // Placeholder - would need resolution timestamps
 
   if (isLoading || !analytics) {
     return (
@@ -123,47 +154,50 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
-      {/* Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="flex flex-col h-[calc(100vh-3rem)]">
+      {/* Fixed Header Section */}
+      <div className="flex-shrink-0 pb-4 mb-4 border-b border-[#333333]">
+        <div className="mb-4">
+          <h1 className="text-3xl font-bold text-[#F5F5F5] mb-2">Analytics</h1>
+          <p className="text-[#BEBEBE]">Error insights and workflow performance metrics</p>
+        </div>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pr-2 -mr-2 space-y-4 md:space-y-6">
+        {/* Stat Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <StatCard
           icon={AlertTriangle}
           value={analytics.totalErrors}
           label="Total Errors"
-          trend={{
-            value: Math.abs(totalErrorsChange),
-            isPositive: totalErrorsChange < 0,
-          }}
+          trend={totalErrorsChange}
         />
         <StatCard
           icon={TrendingUp}
-          value={`${analytics.errorRate}/hr`}
+          value={`${analytics.errorRate.toFixed(1)}/hr`}
           label="Error Rate"
-          trend={{
-            value: Math.abs(errorRateChange),
-            isPositive: errorRateChange < 0,
-          }}
+          trend={errorRateChange}
         />
         <StatCard
           icon={Workflow}
-          value={analytics.mostAffectedWorkflow}
+          value={analytics.mostAffectedWorkflow.length > 30 
+            ? analytics.mostAffectedWorkflow.substring(0, 30) + '...'
+            : analytics.mostAffectedWorkflow}
           label="Most Affected Workflow"
         />
         <StatCard
           icon={Clock}
           value={`${Math.floor(analytics.avgResolutionTime / 60)}m`}
           label="Avg Resolution Time"
-          trend={{
-            value: Math.abs(avgResolutionChange),
-            isPositive: avgResolutionChange < 0,
-          }}
+          trend={avgResolutionChange}
         />
       </div>
 
       {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
         {/* Error Trends Chart */}
-        <Card>
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Error Trends</h3>
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={chartData}>
@@ -173,7 +207,11 @@ export default function AnalyticsPage() {
                 stroke="#8A8A8A"
                 style={{ fontSize: '12px' }}
               />
-              <YAxis stroke="#8A8A8A" style={{ fontSize: '12px' }} />
+              <YAxis 
+                stroke="#8A8A8A" 
+                style={{ fontSize: '12px' }}
+                domain={[0, 'auto']}
+              />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1A1A1A',
@@ -194,7 +232,7 @@ export default function AnalyticsPage() {
         </Card>
 
         {/* Error Distribution by Type */}
-        <Card>
+        <Card className="p-6">
           <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Errors by Type</h3>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -225,10 +263,10 @@ export default function AnalyticsPage() {
         </Card>
       </div>
 
-      {/* Top Workflows Chart */}
-      <Card>
-        <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Top 5 Workflows by Error Count</h3>
-        <ResponsiveContainer width="100%" height={300}>
+        {/* Top Workflows Chart */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Top 5 Workflows by Error Count</h3>
+          <ResponsiveContainer width="100%" height={300}>
           <BarChart data={workflowData} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#333333" />
             <XAxis type="number" stroke="#8A8A8A" style={{ fontSize: '12px' }} />
@@ -238,6 +276,7 @@ export default function AnalyticsPage() {
               stroke="#8A8A8A"
               style={{ fontSize: '12px' }}
               width={200}
+              tick={{ fill: '#BEBEBE' }}
             />
             <Tooltip
               contentStyle={{
@@ -250,11 +289,11 @@ export default function AnalyticsPage() {
             <Bar dataKey="errors" fill="#E67514" radius={[0, 4, 4, 0]} />
           </BarChart>
         </ResponsiveContainer>
-      </Card>
+        </Card>
 
-      {/* Error Breakdown Table */}
-      <Card>
-        <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Error Breakdown</h3>
+        {/* Error Breakdown Table */}
+        <Card className="p-6">
+          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-4">Error Breakdown</h3>
         <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl overflow-hidden">
           <table className="w-full">
             <thead>
@@ -299,6 +338,7 @@ export default function AnalyticsPage() {
           </table>
         </div>
       </Card>
+      </div>
     </div>
   );
 }
