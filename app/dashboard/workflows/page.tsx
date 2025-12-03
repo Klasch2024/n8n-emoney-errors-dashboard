@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Fixed Header Section */}
       <div className="flex-shrink-0 pb-4 mb-4 border-b border-[#333333] pt-4">
         {/* Header */}
@@ -178,7 +178,7 @@ export default function WorkflowsPage() {
       </div>
 
       {/* Scrollable Workflows List */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto pr-2 -mr-2">
         {filteredWorkflows.length === 0 ? (
           <div className="text-center py-12">
             <AlertCircle className="mx-auto mb-4 text-[#8A8A8A]" size={48} />
