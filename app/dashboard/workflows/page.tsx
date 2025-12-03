@@ -107,7 +107,7 @@ export default function WorkflowsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-3rem)]">
       {/* Fixed Header Section */}
       <div className="flex-shrink-0 pb-4 mb-4 border-b border-[#333333] pt-4">
         {/* Header */}
