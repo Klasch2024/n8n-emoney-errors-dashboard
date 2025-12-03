@@ -150,52 +150,58 @@ export default function FixedErrorsPage() {
   }
 
   return (
-    <div>
-      <ErrorFilters
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        severity={severity}
-        onSeverityChange={setSeverity}
-        timeRange={timeRange}
-        onTimeRangeChange={setTimeRange}
-        workflowStatus={workflowStatus}
-        onWorkflowStatusChange={setWorkflowStatus}
-        errorType={errorType}
-        onErrorTypeChange={setErrorType}
-      />
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
+      {/* Fixed Header Section */}
+      <div className="flex-shrink-0 z-10 pb-4 border-b border-[#333333]">
+        <ErrorFilters
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          severity={severity}
+          onSeverityChange={setSeverity}
+          timeRange={timeRange}
+          onTimeRangeChange={setTimeRange}
+          workflowStatus={workflowStatus}
+          onWorkflowStatusChange={setWorkflowStatus}
+          errorType={errorType}
+          onErrorTypeChange={setErrorType}
+        />
 
-      <div className="mb-4 flex items-center justify-between">
-        <div className="text-sm text-[#BEBEBE]">
-          Showing {filteredErrors.length} of {errors.length} fixed errors
+        <div className="mt-4 flex items-center justify-between">
+          <div className="text-sm text-[#BEBEBE]">
+            Showing {filteredErrors.length} of {errors.length} fixed errors
+          </div>
+          <Button variant="secondary" onClick={fetchErrors}>
+            <RefreshCw size={16} className="mr-2" />
+            Refresh
+          </Button>
         </div>
-        <Button variant="secondary" onClick={fetchErrors}>
-          <RefreshCw size={16} className="mr-2" />
-          Refresh
-        </Button>
       </div>
 
-      {filteredErrors.length === 0 ? (
-        <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl p-8 md:p-12 text-center">
-          <AlertCircle size={48} className="mx-auto mb-4 text-[#8A8A8A]" />
-          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No fixed errors found</h3>
-          <p className="text-sm text-[#BEBEBE]">
-            Try adjusting your filters to see more results.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filteredErrors.map((error) => (
-            <ErrorCard
-              key={error.id}
-              error={error}
-              onViewDetails={handleViewDetails}
-              onMarkResolved={handleMarkResolved}
-              showUnmarkButton={true}
-              isResolved={true}
-            />
-          ))}
-        </div>
-      )}
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+        {filteredErrors.length === 0 ? (
+          <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl p-8 md:p-12 text-center mt-4">
+            <AlertCircle size={48} className="mx-auto mb-4 text-[#8A8A8A]" />
+            <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No fixed errors found</h3>
+            <p className="text-sm text-[#BEBEBE]">
+              Try adjusting your filters to see more results.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4 mt-4">
+            {filteredErrors.map((error) => (
+              <ErrorCard
+                key={error.id}
+                error={error}
+                onViewDetails={handleViewDetails}
+                onMarkResolved={handleMarkResolved}
+                showUnmarkButton={true}
+                isResolved={true}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
       <ErrorDetailsModal
         error={selectedError}

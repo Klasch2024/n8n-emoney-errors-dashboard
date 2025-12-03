@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { AlertCircle, CheckCircle2, BarChart3, Workflow, LogOut } from 'lucide-react';
+import { AlertCircle, CheckCircle2, BarChart3, Workflow, LogOut, Search, Settings } from 'lucide-react';
 import { Sidebar, SidebarBody, SidebarLink } from '@/components/ui/sidebar';
 import { motion } from 'framer-motion';
 
@@ -56,9 +56,19 @@ export default function DashboardLayout({
       icon: <Workflow className="h-5 w-5 flex-shrink-0" />,
     },
     {
+      label: 'Search IDs',
+      href: '/dashboard/search-ids',
+      icon: <Search className="h-5 w-5 flex-shrink-0" />,
+    },
+    {
       label: 'Analytics',
       href: '/dashboard/analytics',
       icon: <BarChart3 className="h-5 w-5 flex-shrink-0" />,
+    },
+    {
+      label: 'Settings',
+      href: '/dashboard/settings',
+      icon: <Settings className="h-5 w-5 flex-shrink-0" />,
     },
   ];
 
@@ -94,8 +104,8 @@ export default function DashboardLayout({
       {/* Main Content Area */}
       <main className="flex-1 min-w-0">
         <div className="max-w-[1400px] mx-auto">
-          {children}
-        </div>
+        {children}
+      </div>
       </main>
     </div>
   );

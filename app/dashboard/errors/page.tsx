@@ -11,6 +11,46 @@ import { Button } from '@/components/ui/Button';
 export default function ErrorsPage() {
   const [errors, setErrors] = useState<WorkflowError[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [previousErrorIds, setPreviousErrorIds] = useState<Set<string>>(new Set());
+
+  const playNotificationSound = () => {
+    // Check if notification sound is enabled in settings
+    const soundEnabled = localStorage.getItem('notificationSoundEnabled');
+    if (soundEnabled === 'false') {
+      console.log('[Frontend] Notification sound is disabled in settings');
+      return;
+    }
+
+    // Check if page is visible (not in background tab)
+    if (document.hidden || document.visibilityState === 'hidden') {
+      console.log('[Frontend] Page is hidden, skipping notification sound');
+      return;
+    }
+
+    try {
+      // Create a simple beep sound using Web Audio API
+      const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+
+      // Configure the beep sound (pleasant notification tone)
+      oscillator.frequency.value = 800; // Higher pitch for notification
+      oscillator.type = 'sine';
+      
+      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+      oscillator.start(audioContext.currentTime);
+      oscillator.stop(audioContext.currentTime + 0.3);
+      
+      console.log('[Frontend] 🔊 Notification sound played');
+    } catch (error) {
+      console.error('Error playing notification sound:', error);
+    }
+  };
 
   const fetchErrors = async () => {
     try {
@@ -24,6 +64,21 @@ export default function ErrorsPage() {
           timestamp: error.timestamp ? new Date(error.timestamp) : new Date(),
         }));
         console.log(`[Frontend] Fetched ${errors.length} errors (fixed=false)`);
+        
+        // Check for new errors
+        if (previousErrorIds.size > 0 && errors.length > 0) {
+          const currentErrorIds = new Set(errors.map((e: WorkflowError) => e.id));
+          const newErrorIds = [...currentErrorIds].filter(id => !previousErrorIds.has(id));
+          
+          if (newErrorIds.length > 0) {
+            console.log(`[Frontend] 🎵 New errors detected: ${newErrorIds.length}`);
+            playNotificationSound();
+          }
+        }
+        
+        // Update previous error IDs
+        setPreviousErrorIds(new Set(errors.map((e: WorkflowError) => e.id)));
+        
         if (errors.length > 0) {
           console.log(`[Frontend] First error:`, {
             id: errors[0].id,
@@ -188,7 +243,9 @@ export default function ErrorsPage() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col h-[calc(100vh-8rem)]">
+      {/* Fixed Header Section */}
+      <div className="flex-shrink-0 z-10 pb-4 border-b border-[#333333]">
       <ErrorFilters
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -202,7 +259,7 @@ export default function ErrorsPage() {
         onErrorTypeChange={setErrorType}
       />
 
-      <div className="mb-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between">
         <div className="text-sm text-[#BEBEBE]">
           Showing {filteredErrors.length} of {errors.length} errors
         </div>
@@ -210,10 +267,13 @@ export default function ErrorsPage() {
           <RefreshCw size={16} className="mr-2" />
           Refresh
         </Button>
+        </div>
       </div>
 
+      {/* Scrollable Content Area */}
+      <div className="flex-1 overflow-y-auto pr-2 -mr-2">
       {filteredErrors.length === 0 ? (
-        <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl p-8 md:p-12 text-center">
+          <div className="bg-[#2A2A2A] border border-[#333333] rounded-xl p-8 md:p-12 text-center mt-4">
           <AlertCircle size={48} className="mx-auto mb-4 text-[#8A8A8A]" />
           <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No errors found</h3>
           <p className="text-sm text-[#BEBEBE]">
@@ -221,18 +281,19 @@ export default function ErrorsPage() {
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+          <div className="space-y-4 mt-4">
           {filteredErrors.map((error) => (
             <ErrorCard
               key={error.id}
               error={error}
               onViewDetails={handleViewDetails}
               onMarkResolved={handleMarkResolved}
-              isResolved={false}
+                isResolved={false}
             />
           ))}
         </div>
       )}
+      </div>
 
       <ErrorDetailsModal
         error={selectedError}

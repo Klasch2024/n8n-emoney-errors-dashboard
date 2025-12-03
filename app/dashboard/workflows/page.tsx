@@ -100,70 +100,73 @@ export default function WorkflowsPage() {
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-[#F5F5F5] mb-2">Workflows</h2>
-          <p className="text-sm text-[#BEBEBE]">
-            Showing {filteredWorkflows.length} of {workflows.length} workflows
-            {filterActive !== 'all' && (
-              <span>
-                {' '}
-                ({filterActive === 'active' ? activeCount : inactiveCount}{' '}
-                {filterActive === 'active' ? 'active' : 'inactive'})
-              </span>
-            )}
-          </p>
+    <div className="relative">
+      {/* Sticky Header Section */}
+      <div className="sticky top-0 z-50 pb-4 mb-4 border-b border-[#333333] pt-4">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <h2 className="text-2xl font-bold text-[#F5F5F5] mb-2">Workflows</h2>
+            <p className="text-sm text-[#BEBEBE]">
+              Showing {filteredWorkflows.length} of {workflows.length} workflows
+              {filterActive !== 'all' && (
+                <span>
+                  {' '}
+                  ({filterActive === 'active' ? activeCount : inactiveCount}{' '}
+                  {filterActive === 'active' ? 'active' : 'inactive'})
+                </span>
+              )}
+            </p>
+          </div>
+          <Button variant="primary" onClick={fetchWorkflows}>
+            <RefreshCw size={16} className="mr-2" />
+            Refresh
+          </Button>
         </div>
-        <Button variant="primary" onClick={fetchWorkflows}>
-          <RefreshCw size={16} className="mr-2" />
-          Refresh
-        </Button>
-      </div>
 
-      {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <input
-            type="text"
-            placeholder="Search by workflow name..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 bg-[#2A2A2A] border border-[#333333] rounded-lg text-[#F5F5F5] placeholder-[#8A8A8A] focus:outline-none focus:border-[#E67514] transition-colors"
-          />
-        </div>
-        <div className="flex gap-2">
-          <button
-            onClick={() => setFilterActive('all')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              filterActive === 'all'
-                ? 'bg-[#E67514] text-white'
-                : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
-            }`}
-          >
-            All ({workflows.length})
-          </button>
-          <button
-            onClick={() => setFilterActive('active')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              filterActive === 'active'
-                ? 'bg-[#E67514] text-white'
-                : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
-            }`}
-          >
-            Active ({activeCount})
-          </button>
-          <button
-            onClick={() => setFilterActive('inactive')}
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-              filterActive === 'inactive'
-                ? 'bg-[#E67514] text-white'
-                : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
-            }`}
-          >
-            Inactive ({inactiveCount})
-          </button>
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search by workflow name..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full px-4 py-2 bg-[#2A2A2A] border border-[#333333] rounded-lg text-[#F5F5F5] placeholder-[#8A8A8A] focus:outline-none focus:border-[#E67514] transition-colors"
+            />
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilterActive('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterActive === 'all'
+                  ? 'bg-[#E67514] text-white'
+                  : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
+              }`}
+            >
+              All ({workflows.length})
+            </button>
+            <button
+              onClick={() => setFilterActive('active')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterActive === 'active'
+                  ? 'bg-[#E67514] text-white'
+                  : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
+              }`}
+            >
+              Active ({activeCount})
+            </button>
+            <button
+              onClick={() => setFilterActive('inactive')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterActive === 'inactive'
+                  ? 'bg-[#E67514] text-white'
+                  : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
+              }`}
+            >
+              Inactive ({inactiveCount})
+            </button>
+          </div>
         </div>
       </div>
 
