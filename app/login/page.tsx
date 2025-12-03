@@ -18,11 +18,24 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    // Simple credential check
-    const validEmail = 'schalkadvision@gmail.com';
-    const validPassword = 'Emoney2025';
+    // Valid users array
+    const validUsers = [
+      {
+        email: 'schalkadvision@gmail.com',
+        password: 'Emoney2025',
+      },
+      {
+        email: 'stevenaernst@gmail.com',
+        password: 'Emoney2025',
+      },
+    ];
 
-    if (email === validEmail && password === validPassword) {
+    // Check if credentials match any valid user
+    const user = validUsers.find(
+      (u) => u.email === email && u.password === password
+    );
+
+    if (user) {
       // Store auth in cookie (for server-side middleware)
       document.cookie = `isAuthenticated=true; path=/; max-age=86400`; // 24 hours
       document.cookie = `userEmail=${encodeURIComponent(email)}; path=/; max-age=86400`;
