@@ -2,6 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes fillFromRight {
+  0% {
+    transform: scaleX(0);
+    transform-origin: right center;
+  }
+  100% {
+    transform: scaleX(1);
+    transform-origin: right center;
+  }
+}
+
+.fill-animation {
+  animation: fillFromRight 0.5s ease-in-out forwards;
+}
+
 :root {
   /* Foundation Colors */
   --bg-primary: #212121;

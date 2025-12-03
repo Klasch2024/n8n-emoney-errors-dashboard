@@ -51,7 +51,7 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
     // Wait for animation to complete before calling the callback
     setTimeout(() => {
       onMarkResolved(error.id);
-    }, 300); // Match the animation duration
+    }, 800); // Match the animation duration (500ms fill + 300ms fade)
   };
 
   const truncatedMessage =
@@ -62,41 +62,52 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
   return (
     <Card 
       hover 
-      className={`mb-4 relative transition-all duration-300 ease-in-out ${
+      className={`mb-4 relative overflow-hidden transition-opacity duration-300 ease-in-out ${
         isRemoving 
-          ? 'opacity-0 -translate-x-4 pointer-events-none' 
-          : 'opacity-100 translate-x-0'
+          ? 'opacity-0 pointer-events-none' 
+          : 'opacity-100'
       } ${isResolved ? '!bg-[#1a3a2a] !border-[#2d5a3f] hover:!border-[#2d5a3f]' : ''}`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-[#F5F5F5]">{error.workflowName}</h3>
-        <Badge variant={severityMap[error.severity] || 'neutral'}>
-          {error.severity.toUpperCase()}
-        </Badge>
-      </div>
-
-      <div className="text-sm text-[#BEBEBE] leading-relaxed mb-4">
-        {truncatedMessage}
-        {error.errorMessage.length > 150 && (
-          <button
-            onClick={() => setExpanded(!expanded)}
-            className="text-[#E67514] ml-2 hover:underline"
-          >
-            {expanded ? 'Show less' : 'Show more'}
-          </button>
-        )}
-      </div>
-
-      <div className="mb-4">
-        <div className="text-sm text-[#BEBEBE] mb-2">
-          <span className="font-medium">Node:</span> {error.nodeName}
+      {/* Green fill animation overlay */}
+      {isRemoving && (
+        <div 
+          className="absolute inset-0 bg-[#10B981] z-10 fill-animation"
+          style={{
+            transformOrigin: 'right center',
+          }}
+        />
+      )}
+      <div className="relative z-0">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-semibold text-[#F5F5F5]">{error.workflowName}</h3>
+          <Badge variant={severityMap[error.severity] || 'neutral'}>
+            {error.severity.toUpperCase()}
+          </Badge>
         </div>
-        <Badge variant="neutral" className="mr-2">
-          {errorTypeLabels[error.errorType] || error.errorType}
-        </Badge>
+
+        <div className="text-sm text-[#BEBEBE] leading-relaxed mb-4">
+          {truncatedMessage}
+          {error.errorMessage.length > 150 && (
+            <button
+              onClick={() => setExpanded(!expanded)}
+              className="text-[#E67514] ml-2 hover:underline"
+            >
+              {expanded ? 'Show less' : 'Show more'}
+            </button>
+          )}
+        </div>
+
+        <div className="mb-4">
+          <div className="text-sm text-[#BEBEBE] mb-2">
+            <span className="font-medium">Node:</span> {error.nodeName}
+          </div>
+          <Badge variant="neutral" className="mr-2">
+            {errorTypeLabels[error.errorType] || error.errorType}
+          </Badge>
+        </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mt-4 pt-4 border-t border-[#333333]">
+      <div className={`flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mt-4 pt-4 border-t border-[#333333] relative z-0 ${isRemoving ? 'z-0' : ''}`}>
         <div className="flex items-center gap-2 text-xs text-[#8A8A8A]">
           <Clock size={16} />
           <span>{formatDistanceToNow(error.timestamp, { addSuffix: true })}</span>
@@ -120,7 +131,7 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4">
+      <div className={`flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 relative z-0 ${isRemoving ? 'z-0' : ''}`}>
         {error.outputData?.executionUrl && (
           <Button 
             variant="primary" 
