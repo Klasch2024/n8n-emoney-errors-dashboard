@@ -38,11 +38,20 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
 
   const copyToClipboard = async (text: string, id: string) => {
     await navigator.clipboard.writeText(text);
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
+  };
+
+  const handleMarkResolvedClick = () => {
+    setIsRemoving(true);
+    // Wait for animation to complete before calling the callback
+    setTimeout(() => {
+      onMarkResolved(error.id);
+    }, 300); // Match the animation duration
   };
 
   const truncatedMessage =
@@ -53,7 +62,11 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
   return (
     <Card 
       hover 
-      className={`mb-4 relative ${isResolved ? '!bg-[#1a3a2a] !border-[#2d5a3f] hover:!border-[#2d5a3f]' : ''}`}
+      className={`mb-4 relative transition-all duration-300 ease-in-out ${
+        isRemoving 
+          ? 'opacity-0 -translate-x-4 pointer-events-none' 
+          : 'opacity-100 translate-x-0'
+      } ${isResolved ? '!bg-[#1a3a2a] !border-[#2d5a3f] hover:!border-[#2d5a3f]' : ''}`}
     >
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-[#F5F5F5]">{error.workflowName}</h3>
@@ -124,15 +137,18 @@ export const ErrorCard: React.FC<ErrorCardProps> = ({
         </Button>
         <Button
           variant="ghost"
-          onClick={() => onMarkResolved(error.id)}
-          className="flex-1 sm:flex-initial !border !border-[#E67514] hover:!bg-[#E67514]/10"
+          onClick={handleMarkResolvedClick}
+          disabled={isRemoving}
+          className={`flex-1 sm:flex-initial !border !border-[#E67514] hover:!bg-[#E67514]/10 transition-all duration-200 ${
+            isRemoving ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
           style={{ 
             borderWidth: '1px', 
             borderStyle: 'solid', 
             borderColor: '#E67514'
           }}
         >
-          <CheckCircle2 size={16} className="mr-2" />
+          <CheckCircle2 size={16} className={`mr-2 transition-transform duration-200 ${isRemoving ? 'scale-110' : ''}`} />
           {showUnmarkButton ? 'Unmark as Resolved' : 'Mark Resolved'}
         </Button>
       </div>

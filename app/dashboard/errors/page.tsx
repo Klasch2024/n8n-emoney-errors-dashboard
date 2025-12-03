@@ -186,6 +186,9 @@ export default function ErrorsPage() {
         console.log('[Frontend] Marking error as resolved:', errorId);
       }
       
+      // Remove the error from the local state immediately for smooth animation
+      setErrors(prevErrors => prevErrors.filter(e => e.id !== errorId));
+      
       const response = await fetch('/api/errors', {
         method: 'PATCH',
         headers: {
@@ -200,9 +203,6 @@ export default function ErrorsPage() {
       const responseData = await response.json().catch(() => ({}));
 
       if (response.ok) {
-        // Remove the error from the local state immediately for better UX
-        setErrors(prevErrors => prevErrors.filter(e => e.id !== errorId));
-        
         // Wait 2 seconds for Supabase to process and cache to clear, then refresh
         // This ensures we get the updated data from Supabase
         setTimeout(async () => {
@@ -211,12 +211,16 @@ export default function ErrorsPage() {
       } else {
         const errorMessage = responseData.message || responseData.error || `HTTP ${response.status}: ${response.statusText}`;
         alert(`Failed to mark error as resolved: ${errorMessage}`);
+        // Re-fetch to restore the error if the API call failed
+        await fetchErrors();
       }
     } catch (error) {
       if (process.env.NODE_ENV === 'development') {
         console.error('[Frontend] Error marking as resolved:', error);
       }
       alert(`Failed to mark error as resolved: ${error instanceof Error ? error.message : 'Network error'}`);
+      // Re-fetch to restore the error if the API call failed
+      await fetchErrors();
     }
   };
 
