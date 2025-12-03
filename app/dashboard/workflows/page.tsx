@@ -22,6 +22,7 @@ export default function WorkflowsPage() {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
+  const [n8nBaseUrl, setN8nBaseUrl] = useState<string>('');
 
   const fetchWorkflows = async () => {
     try {
@@ -43,6 +44,11 @@ export default function WorkflowsPage() {
       const workflowsList = Array.isArray(data) 
         ? data 
         : (Array.isArray(data.workflows) ? data.workflows : []);
+      
+      // Extract n8n base URL if provided
+      if (data.n8nBaseUrl) {
+        setN8nBaseUrl(data.n8nBaseUrl);
+      }
       
       if (process.env.NODE_ENV === 'development') {
         console.log('[Frontend] Workflows count:', workflowsList.length);
@@ -235,8 +241,11 @@ export default function WorkflowsPage() {
                 <Button
                   variant="primary"
                   onClick={() => {
-                    const n8nUrl = process.env.NEXT_PUBLIC_N8N_BASE_URL || process.env.N8N_BASE_URL || '';
-                    window.open(`${n8nUrl}/workflow/${workflow.id}`, '_blank');
+                    if (!n8nBaseUrl) {
+                      alert('n8n base URL is not configured. Please set N8N_BASE_URL environment variable.');
+                      return;
+                    }
+                    window.open(`${n8nBaseUrl}/workflow/${workflow.id}`, '_blank');
                   }}
                   className="w-full"
                 >
