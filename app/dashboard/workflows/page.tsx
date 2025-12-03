@@ -107,9 +107,9 @@ export default function WorkflowsPage() {
   }
 
   return (
-    <div className="relative">
-      {/* Sticky Header Section */}
-      <div className="sticky top-0 z-50 pb-4 mb-4 border-b border-[#333333] pt-4">
+    <div className="flex flex-col h-full">
+      {/* Fixed Header Section */}
+      <div className="flex-shrink-0 pb-4 mb-4 border-b border-[#333333] pt-4">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
           <div>
@@ -177,86 +177,88 @@ export default function WorkflowsPage() {
         </div>
       </div>
 
-      {/* Workflows List */}
-      {filteredWorkflows.length === 0 ? (
-        <div className="text-center py-12">
-          <AlertCircle className="mx-auto mb-4 text-[#8A8A8A]" size={48} />
-          <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No workflows found</h3>
-          <p className="text-sm text-[#BEBEBE]">
-            {searchQuery || filterActive !== 'all'
-              ? 'Try adjusting your filters to see more results.'
-              : 'No workflows available in your n8n account.'}
-          </p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredWorkflows.map((workflow) => (
-            <Card key={workflow.id} hover className="flex flex-col">
-              <div className="flex items-start justify-between mb-4">
-                <h3 className="text-base font-semibold text-[#F5F5F5] flex-1 pr-2">
-                  {workflow.name}
-                </h3>
-                <Badge variant={workflow.active ? 'success' : 'neutral'}>
-                  {workflow.active ? (
-                    <>
-                      <Play size={12} className="mr-1" />
-                      Active
-                    </>
-                  ) : (
-                    <>
-                      <Pause size={12} className="mr-1" />
-                      Inactive
-                    </>
-                  )}
-                </Badge>
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-4">
-                {workflow.tags && workflow.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1">
-                    {workflow.tags.slice(0, 3).map((tag) => (
-                      <span
-                        key={tag.id}
-                        className="px-2 py-1 text-xs bg-[#333333] text-[#BEBEBE] rounded"
-                      >
-                        {tag.name}
-                      </span>
-                    ))}
-                    {workflow.tags.length > 3 && (
-                      <span className="px-2 py-1 text-xs text-[#8A8A8A]">
-                        +{workflow.tags.length - 3}
-                      </span>
+      {/* Scrollable Workflows List */}
+      <div className="flex-1 overflow-y-auto">
+        {filteredWorkflows.length === 0 ? (
+          <div className="text-center py-12">
+            <AlertCircle className="mx-auto mb-4 text-[#8A8A8A]" size={48} />
+            <h3 className="text-lg font-semibold text-[#F5F5F5] mb-2">No workflows found</h3>
+            <p className="text-sm text-[#BEBEBE]">
+              {searchQuery || filterActive !== 'all'
+                ? 'Try adjusting your filters to see more results.'
+                : 'No workflows available in your n8n account.'}
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredWorkflows.map((workflow) => (
+              <Card key={workflow.id} hover className="flex flex-col">
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-base font-semibold text-[#F5F5F5] flex-1 pr-2">
+                    {workflow.name}
+                  </h3>
+                  <Badge variant={workflow.active ? 'success' : 'neutral'}>
+                    {workflow.active ? (
+                      <>
+                        <Play size={12} className="mr-1" />
+                        Active
+                      </>
+                    ) : (
+                      <>
+                        <Pause size={12} className="mr-1" />
+                        Inactive
+                      </>
                     )}
-                  </div>
-                )}
-              </div>
+                  </Badge>
+                </div>
 
-              <div className="text-xs text-[#8A8A8A] mb-4">
-                {workflow.nodes && (
-                  <span>{workflow.nodes.length} node{workflow.nodes.length !== 1 ? 's' : ''}</span>
-                )}
-              </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {workflow.tags && workflow.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1">
+                      {workflow.tags.slice(0, 3).map((tag) => (
+                        <span
+                          key={tag.id}
+                          className="px-2 py-1 text-xs bg-[#333333] text-[#BEBEBE] rounded"
+                        >
+                          {tag.name}
+                        </span>
+                      ))}
+                      {workflow.tags.length > 3 && (
+                        <span className="px-2 py-1 text-xs text-[#8A8A8A]">
+                          +{workflow.tags.length - 3}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
 
-              <div className="mt-auto pt-4 border-t border-[#333333]">
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    if (!n8nBaseUrl) {
-                      alert('n8n base URL is not configured. Please set N8N_BASE_URL environment variable.');
-                      return;
-                    }
-                    window.open(`${n8nBaseUrl}/workflow/${workflow.id}`, '_blank');
-                  }}
-                  className="w-full"
-                >
-                  <ExternalLink size={16} className="mr-2" />
-                  Open in n8n
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
-      )}
+                <div className="text-xs text-[#8A8A8A] mb-4">
+                  {workflow.nodes && (
+                    <span>{workflow.nodes.length} node{workflow.nodes.length !== 1 ? 's' : ''}</span>
+                  )}
+                </div>
+
+                <div className="mt-auto pt-4 border-t border-[#333333]">
+                  <Button
+                    variant="primary"
+                    onClick={() => {
+                      if (!n8nBaseUrl) {
+                        alert('n8n base URL is not configured. Please set N8N_BASE_URL environment variable.');
+                        return;
+                      }
+                      window.open(`${n8nBaseUrl}/workflow/${workflow.id}`, '_blank');
+                    }}
+                    className="w-full"
+                  >
+                    <ExternalLink size={16} className="mr-2" />
+                    Open in n8n
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
