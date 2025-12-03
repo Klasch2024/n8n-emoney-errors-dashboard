@@ -152,7 +152,7 @@ export default function FixedErrorsPage() {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)]">
+    <div className="flex flex-col h-[calc(100vh-3rem)]">
       {/* Fixed Header Section */}
       <div className="flex-shrink-0 z-10 pb-4 border-b border-[#333333]">
         <ErrorFilters
