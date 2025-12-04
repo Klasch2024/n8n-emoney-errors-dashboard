@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { RefreshCw, Play, Pause, ExternalLink, AlertCircle, Star } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -53,6 +53,10 @@ export default function WorkflowsPage() {
       
       if (process.env.NODE_ENV === 'development') {
         console.log('[Frontend] Workflows count:', workflowsList.length);
+        if (workflowsList.length > 0) {
+          console.log('[Frontend] First workflow ID:', workflowsList[0].id);
+          console.log('[Frontend] First workflow:', workflowsList[0]);
+        }
       }
       
       setWorkflows(workflowsList);
@@ -72,6 +76,9 @@ export default function WorkflowsPage() {
       try {
         const starred = JSON.parse(saved);
         setStarredWorkflows(new Set(starred));
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Star] Loaded starred workflows from localStorage:', starred);
+        }
       } catch (e) {
         console.error('Error loading starred workflows:', e);
       }
@@ -96,22 +103,35 @@ export default function WorkflowsPage() {
     });
   };
 
-  const filteredWorkflows = Array.isArray(workflows) ? workflows.filter((workflow) => {
-    const matchesSearch = workflow.name.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredWorkflows = useMemo(() => {
+    if (!Array.isArray(workflows)) return [];
     
-    let matchesFilter = false;
-    if (filterActive === 'all') {
-      matchesFilter = true;
-    } else if (filterActive === 'active') {
-      matchesFilter = workflow.active;
-    } else if (filterActive === 'inactive') {
-      matchesFilter = !workflow.active;
-    } else if (filterActive === 'starred') {
-      matchesFilter = starredWorkflows.has(workflow.id);
-    }
-    
-    return matchesSearch && matchesFilter;
-  }) : [];
+    return workflows.filter((workflow) => {
+      const matchesSearch = workflow.name.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      let matchesFilter = false;
+      if (filterActive === 'all') {
+        matchesFilter = true;
+      } else if (filterActive === 'active') {
+        matchesFilter = workflow.active;
+      } else if (filterActive === 'inactive') {
+        matchesFilter = !workflow.active;
+      } else if (filterActive === 'starred') {
+        const isStarred = starredWorkflows.has(workflow.id);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[Filter] Checking workflow:', {
+            id: workflow.id,
+            name: workflow.name,
+            isStarred,
+            starredWorkflows: Array.from(starredWorkflows),
+          });
+        }
+        matchesFilter = isStarred;
+      }
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [workflows, searchQuery, filterActive, starredWorkflows]);
 
   const activeCount = workflows.filter((w) => w.active).length;
   const inactiveCount = workflows.filter((w) => !w.active).length;
@@ -246,6 +266,9 @@ export default function WorkflowsPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
+                      if (process.env.NODE_ENV === 'development') {
+                        console.log('[Star] Clicked star for workflow:', workflow.id, workflow.name);
+                      }
                       toggleStar(workflow.id);
                     }}
                     className="flex-shrink-0 p-1 hover:bg-[#333333] rounded transition-colors"
