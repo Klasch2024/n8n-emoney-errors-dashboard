@@ -88,16 +88,28 @@ export default function WorkflowsPage() {
       }
       // Save to localStorage
       localStorage.setItem('starredWorkflows', JSON.stringify(Array.from(newSet)));
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[Star] Toggled star for workflow:', workflowId);
+        console.log('[Star] Starred workflows:', Array.from(newSet));
+      }
       return newSet;
     });
   };
 
   const filteredWorkflows = Array.isArray(workflows) ? workflows.filter((workflow) => {
     const matchesSearch = workflow.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter =
-      filterActive === 'all' ||
-      (filterActive === 'active' && workflow.active) ||
-      (filterActive === 'inactive' && !workflow.active);
+    
+    let matchesFilter = false;
+    if (filterActive === 'all') {
+      matchesFilter = true;
+    } else if (filterActive === 'active') {
+      matchesFilter = workflow.active;
+    } else if (filterActive === 'inactive') {
+      matchesFilter = !workflow.active;
+    } else if (filterActive === 'starred') {
+      matchesFilter = starredWorkflows.has(workflow.id);
+    }
+    
     return matchesSearch && matchesFilter;
   }) : [];
 
