@@ -47,12 +47,12 @@ export default function WorkflowsPage() {
         : (Array.isArray(data.workflows) ? data.workflows : []);
       
       // Deduplicate workflows by ID
-      const uniqueWorkflows = workflowsList.reduce((acc: typeof workflowsList, workflow) => {
+      const uniqueWorkflows = workflowsList.reduce((acc: Workflow[], workflow: Workflow) => {
         if (!acc.find((w) => w.id === workflow.id)) {
           acc.push(workflow);
         }
         return acc;
-      }, [] as typeof workflowsList);
+      }, [] as Workflow[]);
       
       workflowsList = uniqueWorkflows;
       
