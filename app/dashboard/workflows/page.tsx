@@ -42,19 +42,18 @@ export default function WorkflowsPage() {
       }
 
       // Handle both array response and object with workflows property
-      let workflowsList = Array.isArray(data) 
+      let workflowsList: Workflow[] = Array.isArray(data) 
         ? data 
         : (Array.isArray(data.workflows) ? data.workflows : []);
       
-      // Deduplicate workflows by ID
-      const uniqueWorkflows = workflowsList.reduce((acc: Workflow[], workflow: Workflow) => {
-        if (!acc.find((w) => w.id === workflow.id)) {
-          acc.push(workflow);
+      // Deduplicate workflows by ID using a Map for better performance
+      const workflowsMap = new Map<string, Workflow>();
+      workflowsList.forEach((workflow: Workflow) => {
+        if (!workflowsMap.has(workflow.id)) {
+          workflowsMap.set(workflow.id, workflow);
         }
-        return acc;
-      }, [] as Workflow[]);
-      
-      workflowsList = uniqueWorkflows;
+      });
+      workflowsList = Array.from(workflowsMap.values());
       
       // Extract n8n base URL if provided
       if (data.n8nBaseUrl) {
@@ -68,7 +67,7 @@ export default function WorkflowsPage() {
           console.log('[Frontend] First workflow:', workflowsList[0]);
         }
         // Check for duplicates
-        const ids = workflowsList.map(w => w.id);
+        const ids = workflowsList.map((w: Workflow) => w.id);
         const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
         if (duplicates.length > 0) {
           console.warn('[Frontend] Found duplicate workflow IDs:', duplicates);
