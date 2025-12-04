@@ -42,9 +42,19 @@ export default function WorkflowsPage() {
       }
 
       // Handle both array response and object with workflows property
-      const workflowsList = Array.isArray(data) 
+      let workflowsList = Array.isArray(data) 
         ? data 
         : (Array.isArray(data.workflows) ? data.workflows : []);
+      
+      // Deduplicate workflows by ID
+      const uniqueWorkflows = workflowsList.reduce((acc, workflow) => {
+        if (!acc.find((w) => w.id === workflow.id)) {
+          acc.push(workflow);
+        }
+        return acc;
+      }, [] as typeof workflowsList);
+      
+      workflowsList = uniqueWorkflows;
       
       // Extract n8n base URL if provided
       if (data.n8nBaseUrl) {
@@ -56,6 +66,12 @@ export default function WorkflowsPage() {
         if (workflowsList.length > 0) {
           console.log('[Frontend] First workflow ID:', workflowsList[0].id);
           console.log('[Frontend] First workflow:', workflowsList[0]);
+        }
+        // Check for duplicates
+        const ids = workflowsList.map(w => w.id);
+        const duplicates = ids.filter((id, index) => ids.indexOf(id) !== index);
+        if (duplicates.length > 0) {
+          console.warn('[Frontend] Found duplicate workflow IDs:', duplicates);
         }
       }
       

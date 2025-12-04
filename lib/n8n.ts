@@ -97,7 +97,12 @@ export async function fetchAllWorkflows(): Promise<N8NWorkflow[]> {
       }
       
       if (workflows.length > 0) {
-        allWorkflows.push(...workflows);
+        // Deduplicate workflows by ID before adding
+        workflows.forEach((workflow) => {
+          if (!allWorkflows.find((w) => w.id === workflow.id)) {
+            allWorkflows.push(workflow);
+          }
+        });
       }
       
       // Check if there's a next page
