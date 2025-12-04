@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { RefreshCw, Play, Pause, ExternalLink, AlertCircle } from 'lucide-react';
+import { RefreshCw, Play, Pause, ExternalLink, AlertCircle, Star } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
@@ -21,8 +21,9 @@ export default function WorkflowsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive'>('all');
+  const [filterActive, setFilterActive] = useState<'all' | 'active' | 'inactive' | 'starred'>('all');
   const [n8nBaseUrl, setN8nBaseUrl] = useState<string>('');
+  const [starredWorkflows, setStarredWorkflows] = useState<Set<string>>(new Set());
 
   const fetchWorkflows = async () => {
     try {
@@ -65,7 +66,31 @@ export default function WorkflowsPage() {
 
   useEffect(() => {
     fetchWorkflows();
+    // Load starred workflows from localStorage
+    const saved = localStorage.getItem('starredWorkflows');
+    if (saved) {
+      try {
+        const starred = JSON.parse(saved);
+        setStarredWorkflows(new Set(starred));
+      } catch (e) {
+        console.error('Error loading starred workflows:', e);
+      }
+    }
   }, []);
+
+  const toggleStar = (workflowId: string) => {
+    setStarredWorkflows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(workflowId)) {
+        newSet.delete(workflowId);
+      } else {
+        newSet.add(workflowId);
+      }
+      // Save to localStorage
+      localStorage.setItem('starredWorkflows', JSON.stringify(Array.from(newSet)));
+      return newSet;
+    });
+  };
 
   const filteredWorkflows = Array.isArray(workflows) ? workflows.filter((workflow) => {
     const matchesSearch = workflow.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -119,8 +144,8 @@ export default function WorkflowsPage() {
               {filterActive !== 'all' && (
                 <span>
                   {' '}
-                  ({filterActive === 'active' ? activeCount : inactiveCount}{' '}
-                  {filterActive === 'active' ? 'active' : 'inactive'})
+                  ({filterActive === 'active' ? activeCount : filterActive === 'inactive' ? inactiveCount : starredWorkflows.size}{' '}
+                  {filterActive === 'active' ? 'active' : filterActive === 'inactive' ? 'inactive' : 'starred'})
                 </span>
               )}
             </p>
@@ -173,6 +198,17 @@ export default function WorkflowsPage() {
             >
               Inactive ({inactiveCount})
             </button>
+            <button
+              onClick={() => setFilterActive('starred')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-1 ${
+                filterActive === 'starred'
+                  ? 'bg-[#E67514] text-white'
+                  : 'bg-[#2A2A2A] text-[#BEBEBE] hover:bg-[#333333]'
+              }`}
+            >
+              <Star size={14} className={starredWorkflows.size > 0 ? 'fill-current' : ''} />
+              Starred ({starredWorkflows.size})
+            </button>
           </div>
         </div>
       </div>
@@ -191,26 +227,45 @@ export default function WorkflowsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredWorkflows.map((workflow) => (
-              <Card key={workflow.id} hover className="flex flex-col">
-                <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-base font-semibold text-[#F5F5F5] flex-1 pr-2">
+          {filteredWorkflows.map((workflow) => (
+            <Card key={workflow.id} hover className="flex flex-col">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex items-center gap-2 flex-1 pr-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleStar(workflow.id);
+                    }}
+                    className="flex-shrink-0 p-1 hover:bg-[#333333] rounded transition-colors"
+                    title={starredWorkflows.has(workflow.id) ? 'Unstar workflow' : 'Star workflow'}
+                  >
+                    <Star
+                      size={18}
+                      className={`transition-all ${
+                        starredWorkflows.has(workflow.id)
+                          ? 'text-[#F59E0B] fill-[#F59E0B]'
+                          : 'text-[#8A8A8A] hover:text-[#F59E0B]'
+                      }`}
+                    />
+                  </button>
+                  <h3 className="text-base font-semibold text-[#F5F5F5] flex-1">
                     {workflow.name}
                   </h3>
-                  <Badge variant={workflow.active ? 'success' : 'neutral'}>
-                    {workflow.active ? (
-                      <>
-                        <Play size={12} className="mr-1" />
-                        Active
-                      </>
-                    ) : (
-                      <>
-                        <Pause size={12} className="mr-1" />
-                        Inactive
-                      </>
-                    )}
-                  </Badge>
                 </div>
+                <Badge variant={workflow.active ? 'success' : 'neutral'}>
+                  {workflow.active ? (
+                    <>
+                      <Play size={12} className="mr-1" />
+                      Active
+                    </>
+                  ) : (
+                    <>
+                      <Pause size={12} className="mr-1" />
+                      Inactive
+                    </>
+                  )}
+                </Badge>
+              </div>
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {workflow.tags && workflow.tags.length > 0 && (
